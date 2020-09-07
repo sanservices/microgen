@@ -40,7 +40,7 @@ func (h Handler) getDocs(w http.ResponseWriter, r *http.Request) {
 func (h Handler) InitRoutes(ctx context.Context, r *mux.Router) {
 	v1 := r.PathPrefix("/v1").Subrouter()
 
-	statikFS, err := fs.New()
+	statikFS, err := fs.NewWithNamespace("v1")
 	if err == nil {
 		r.StrictSlash(true).PathPrefix("/v1/docs/").Handler(
 			http.StripPrefix("/v1/docs/", http.FileServer(statikFS)),

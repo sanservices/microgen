@@ -6,9 +6,7 @@ import (
 	"github.com/rakyll/statik/fs"
 )
 
-const V1 = "v1" // static asset namespace
-
 func init() {
 	data := ""
-	fs.RegisterWithNamespace("v1", data)
+	fs.Register(data)
 }

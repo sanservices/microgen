@@ -5,7 +5,7 @@
 //
 // Schemes: http
 // Host: localhost:8080
-// BasePath: /v1
+// BasePath: /
 // Version: 1.0
 //
 // Security:

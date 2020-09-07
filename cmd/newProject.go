@@ -53,9 +53,11 @@ func createProject(cmd *cobra.Command, args []string) error {
 		gopath = build.Default.GOPATH
 	}
 
+	orgPath := "/src/github.com/san-services/microgen"
+
 	// Create the root folder with project's name
 	rootFolder := strings.ToLower(strings.Replace(project, " ", "_", -1))
-	templatePath := gopath + "/src/github.com/san-services/microgen/templates/template_v1"
+	templatePath := gopath + orgPath + "/templates/template_v1"
 
 	// Loop through the template-project folders and files
 	// to generate a new project.
