@@ -22,4 +22,4 @@ To create a new project go to the directory where you want to save it and run:
 microgen new project --name "my awesome project" --module path/to/your/repository
 ```
 
-After that a new folder will be generated on your current location. Navigate into it, and run `go run main.go` and that will start the server, you can check it at [http://localhost:8080/v1/docs](http://localhost:8080/v1/docs)
+After that a new folder will be generated on your current location. Navigate into it, and run `modd` it will download dependencie, generate the swagger files and start the server, you can check the generated swagger at [http://localhost:8080/v1/docs](http://localhost:8080/v1/docs)
