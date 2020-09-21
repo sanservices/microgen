@@ -33,7 +33,10 @@ import (
 	"goproposal/internal/mydomain/service"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"strconv"
+	"time"
 
 	"github.com/san-services/apicore"
 	"github.com/san-services/apicore/apisettings"
@@ -43,6 +46,7 @@ import (
 func main() {
 	ctx := context.Background()
 	lg := apilogger.New(ctx, "")
+	wait := time.Second * 15
 
 	//Get project configurations.
 	config, err := apisettings.Get(ctx, "settings.yml")
@@ -71,9 +75,35 @@ func main() {
 	//Start server.
 	portToListen := ":" + strconv.Itoa(config.Service.Port)
 
-	lg.Infof(apilogger.LogCatRouterInit, "server running on port: %d", config.Service.Port)
-	log.Printf("server started at http://localhost:%d", config.Service.Port)
-	log.Fatal(
-		http.ListenAndServe(portToListen, api.Router),
-	)
+	srv := &http.Server{
+		Addr:         "0.0.0.0" + portToListen,
+		WriteTimeout: time.Second * 15,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 60,
+		Handler:      api.Router, // Pass our instance of gorilla/mux in.
+	}
+
+	go func() {
+		log.Printf("server started at http://localhost:%d", config.Service.Port)
+		if err := srv.ListenAndServe(); err != nil {
+			log.Println(err)
+		}
+	}()
+
+	c := make(chan os.Signal, 1)
+
+	// We'll accept graceful shutdowns when quit via SIGINT (Ctrl+C)
+	// SIGKILL, SIGQUIT or SIGTERM (Ctrl+/) will not be caught.
+	signal.Notify(c, os.Interrupt)
+
+	// Block until we receive our signal.
+	<-c
+
+	// Create a deadline to wait for.
+	ctxWait, cancel := context.WithTimeout(context.Background(), wait)
+	defer cancel()
+
+	srv.Shutdown(ctxWait)
+	log.Println("shutting down")
+	os.Exit(0)
 }
