@@ -1,0 +1,54 @@
+version: "3.7"
+
+services:
+  service:
+    image: sslibs/{{cookiecutter.app_name}}-tst
+    ports:
+      - target: 8080
+        published: 8080
+        protocol: tcp
+        mode: host
+    deploy:
+      replicas: 2
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == worker
+        preferences:
+          - spread: node.labels.ESXIHost
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 5
+        window: 10s
+      update_config:
+        parallelism: 1
+        delay: 5s
+        failure_action: rollback
+        monitor: 10s
+      rollback_config:
+        parallelism: 1
+        delay: 5s
+        failure_action: pause
+        monitor: 10s
+    secrets:
+      - source: {{cookiecutter.app_name}}_settings.yml
+        target: /{{cookiecutter.app_name}}/settings/settings.yml
+    logging: 
+      driver: splunk
+      options:
+        splunk-token: "fee1b6aa-2340-49ce-9027-f2905f676928"
+        splunk-url: "https://testsplunk.sandals.com:8088"
+        splunk-format: "json"
+        splunk-insecureskipverify: "true"
+        tag: {% raw %}"{{.ImageName}} | {{.Name}} | {{.ID}}"{% endraw %}
+    networks:
+      - tst-sd-net
+
+secrets:
+  {{cookiecutter.app_name}}_settings.yml:
+    external: true
+
+networks:
+  tst-sd-net:
+    external: true

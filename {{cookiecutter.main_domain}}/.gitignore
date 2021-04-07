@@ -1,0 +1,10 @@
+.vscode/
+.idea/
+.DS_store
+.env
+{{cookiecutter.app_name}}
+{{cookiecutter.app_name}}.log
+settings/settings.yml
+settings/settings_loc.yml
+settings/settings.yaml
+settings/settings.json
