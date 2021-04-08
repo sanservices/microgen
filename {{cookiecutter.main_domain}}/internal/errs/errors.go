@@ -35,12 +35,6 @@ const (
 
 	// MsgProps is error message for malformed input data
 	MsgProps = "problems with input data"
-	// MsgPropMissing is error message for missing property
-	MsgPropMissing = "required, missing"
-	// MsgPropInt is validation error message of checking input against being integer
-	MsgPropInt = "should be an integer"
-	// MsgPropString is validation error message of checking input against being integer
-	MsgPropString = "should be a string"
 	// MsgNoTemplate is error message for non-existing template
 	MsgNoTemplate = "template not found"
 	// MsgExecTemplate is error message for template that cannot be rendered
@@ -60,6 +54,11 @@ func NewNoTemplateErr() ServiceError {
 // NewExecTemplateErr is error for template that cannot be rendered
 func NewExecTemplateErr() ServiceError {
 	return New(MsgExecTemplate, CodeExecTemplate)
+}
+
+// NewInputMalformedErr is error for malformed input data
+func NewInputMalformedErr(err error) ServiceError {
+	return New(fmt.Sprintf("input malformed - %s", err.Error()), CodeMalformed)
 }
 
 // NewResourceNotFoundErr is error for resource that doesn't exists
@@ -93,11 +92,6 @@ func NewDatastoreErr(err error) ServiceError {
 // NewNotImplementedErr is error for non-implemented functionality
 func NewNotImplementedErr() ServiceError {
 	return New("functionality not yet implemented", CodeNotImpl)
-}
-
-// NewInputMalformedErr is error for malformed input data
-func NewInputMalformedErr() ServiceError {
-	return New("input malformed - check given parameters and parameter types", CodeMalformed)
 }
 
 // NewInputEmptyErr is error for empty input

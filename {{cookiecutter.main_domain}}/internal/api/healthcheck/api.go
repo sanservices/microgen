@@ -9,21 +9,21 @@ import (
 	"time"
 )
 
-// handler is the handler for healthchecks
-type handler struct {
+// Handler is the handler for healthchecks
+type Handler struct {
 }
 
-// NewHandler is healthcheck handler constructor
-func NewHandler() *handler {
-	return &handler{}
+// NewHandler is healthcheck Handler constructor
+func NewHandler() *Handler {
+	return &Handler{}
 }
 
 // RegisterRoutes initializes api routes
-func (h *handler) RegisterRoutes(e *echo.Group) {
+func (h *Handler) RegisterRoutes(e *echo.Group) {
 	e.GET("/healthcheck", h.healthCheck)
 }
 
-func (h *handler) healthCheck(c echo.Context) error {
+func (h *Handler) healthCheck(c echo.Context) error {
 	resp := struct {
 		Host     string    `json:"host"`
 		Datetime time.Time `json:"datetime"`

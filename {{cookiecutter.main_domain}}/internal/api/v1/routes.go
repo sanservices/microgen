@@ -10,7 +10,7 @@ import (
 )
 
 // RegisterRoutes initializes api v1 routes
-func (h *handler) RegisterRoutes(e *echo.Group) {
+func (h *Handler) RegisterRoutes(e *echo.Group) {
 	statikFS, err := fs.New()
 	// Try to get swagger from statik
 	if err != nil {

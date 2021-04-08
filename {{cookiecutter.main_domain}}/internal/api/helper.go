@@ -34,6 +34,7 @@ func RespondError(c echo.Context, httpStatusCode int, respErr error) error {
 	return c.JSON(httpStatusCode, response)
 }
 
+
 // RespondOk sends a json success response
 func RespondOk(c echo.Context, data interface{}) error {
 	return c.JSON(http.StatusOK, &successResponse{Data: data})

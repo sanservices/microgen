@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func (h *handler) getThing(c echo.Context) error {
+func (h *Handler) getThing(c echo.Context) error {
 	queryThingID := c.QueryParam("id")
 	thingID, err := strconv.Atoi(queryThingID)
 	if err != nil || thingID < 0 {
