@@ -11,6 +11,7 @@ import (
 
 // RegisterRoutes iterates over handlers and registers them in given echo server instance
 func RegisterRoutes(cfg *settings.Settings, e *echo.Echo, handlers []Handler) {
+	e.Use(setCustomHeaders)
 	e.Use(enrichContext)
 	e.Use(requestLogger)
 	e.Use(middleware.Recover())

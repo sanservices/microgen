@@ -9,6 +9,22 @@ import (
 	"time"
 )
 
+// Sets some custom headers
+func setCustomHeaders(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		res := next(c)
+
+		id, ok := c.Request().Context().Value("x-request-id").(string)
+		if !ok {
+			id = ""
+		}
+
+		c.Response().Header().Set("X-Request-Id", id)
+
+		return res
+	}
+}
+
 // Enriches the context and sets context to request
 func enrichContext(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
