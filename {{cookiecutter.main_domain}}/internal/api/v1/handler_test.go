@@ -3,9 +3,9 @@ package v1
 import (
 	_ "{{cookiecutter.module_name}}/internal/api/v1/swagger" // statik file
 
-	"{{cookiecutter.module_name}}/internal/accommodations"
-	"{{cookiecutter.module_name}}/internal/accommodations/repository/mock"
-	"{{cookiecutter.module_name}}/internal/accommodations/service"
+	"{{cookiecutter.module_name}}/internal/{{cookiecutter.main_domain}}"
+	"{{cookiecutter.module_name}}/internal/{{cookiecutter.main_domain}}/repository/mock"
+	"{{cookiecutter.module_name}}/internal/{{cookiecutter.main_domain}}/service"
 	"{{cookiecutter.module_name}}/internal/api"
 	"{{cookiecutter.module_name}}/settings"
 	"github.com/rakyll/statik/fs"
