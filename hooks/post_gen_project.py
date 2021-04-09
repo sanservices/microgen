@@ -27,3 +27,6 @@ def init_git():
 
 # 1. Initialize Git
 init_git()
+
+# 2. Format the project
+os.system("gofmt -s -w .")
