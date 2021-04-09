@@ -4,32 +4,6 @@
 
 This is a service which is based on goproposal for version 2 of the Sanservices boilerplate Golang microservice project.
 
-## Docs
-
-You can view docs by running
-
-docker:
-
-```
-docker build -t {{cookiecutter.app_name}}-docs -f docs/Dockerfile . && \
-docker run --rm -it -p 8000:8000 -v ${PWD}/docs:/docs:z {{cookiecutter.app_name}}-docs:latest
-```
-
-pip:
-
-```
-pip install mkdocs-material mkdocs-render-swagger-plugin
-mkdocs serve -f docs/mkdocs.yml
-```
-
-or just:
-
-```
-modd
-```
-
-Mkdocs doc server will start on localhost:8000
-
 ## Local setup
 
 ### Docker
@@ -171,10 +145,3 @@ in `/internal/{{cookiecutter.app_name}}/{{cookiecutter.app_name}}.go`.
 
 *️ This package contains all business logic. It is responsible for data transformation/enrichment and choosing where to
 fetch necessary data from
-
-## Notes
-
-I use expressions like `&[]string{"somestring"}[0]` in bunch of places. This expression says: "create a slice of strings and get first element's address"
-
-There is no way of taking address of constant, kinda `&"somestring" // invalid`, so it is used not to create a ton of
-variables
