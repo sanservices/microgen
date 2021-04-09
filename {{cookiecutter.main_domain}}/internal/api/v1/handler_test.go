@@ -28,7 +28,7 @@ func TestNewHandler(t *testing.T) {
 
 	type args struct {
 		cfg *settings.Settings
-		svc accommodations.Service
+		svc {{cookiecutter.main_domain}}.Service
 		statikFS  http.FileSystem
 	}
 	tests := []struct {
