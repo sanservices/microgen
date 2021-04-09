@@ -25,5 +25,5 @@ def init_git():
 
 
 
-# 7. Initialize Git
+# 1. Initialize Git
 init_git()
