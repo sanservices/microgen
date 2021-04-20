@@ -46,7 +46,6 @@ func New(ctx context.Context, cfg *settings.Settings) (repo {{ cookiecutter.main
 
 		mysqlConn.SetMaxOpenConns(25) // Set some limits for connection pool
 		mysqlConn.SetMaxIdleConns(15)
-		mysqlConn.SetConnMaxLifetime(5 * time.Minute)
 
 		err = mysqlConn.Ping()
 		if err != nil {
