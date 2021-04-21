@@ -1,0 +1,13 @@
+service:
+  name: "{{ cookiecutter.app_name }}"
+  path_prefix: ""
+  version: "1"
+  debug: false
+  port: 8080
+database:
+  engine: "mysql"
+  host: "172.xxx.xxx.xxx"
+  name: "sandalsxxx"
+  port: 3306
+  user: "userxxx"
+  password: "passwordxxx"

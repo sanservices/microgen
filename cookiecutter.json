@@ -1,0 +1,5 @@
+{
+  "module_name": "github.com/mycompany/things-service.git",
+  "app_name": "things-service",
+  "main_domain": "things"
+}
