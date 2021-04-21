@@ -1,0 +1,13 @@
+service:
+  name: "{{ cookiecutter.app_name }}"
+  path_prefix: ""
+  version: "1"
+  debug: true
+  port: 8080
+database:
+  engine: "mock"
+  host: ""
+  name: ""
+  port: 3306
+  user: ""
+  password: ""
