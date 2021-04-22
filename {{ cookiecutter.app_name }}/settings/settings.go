@@ -2,6 +2,7 @@ package settings
 
 import (
 	"context"
+
 	logger "github.com/sanservices/apilogger/v2"
 	"github.com/spf13/viper"
 )
@@ -12,25 +13,25 @@ const (
 
 // Settings struct
 type Settings struct {
-	Service service  `yaml:"service"`
-	DB      database `yaml:"database"`
+	Service service  `mapstructure:"service"`
+	DB      database `mapstructure:"database"`
 }
 
 type service struct {
-	Name       string `yaml:"service_name"`
-	PathPrefix string `yaml:"path_prefix"`
-	Version    string `yaml:"version"`
-	Port       int    `yaml:"port"`
-	Debug      bool   `yaml:"debug"`
+	Name       string `mapstructure:"service_name"`
+	PathPrefix string `mapstructure:"path_prefix"`
+	Version    string `mapstructure:"version"`
+	Port       int    `mapstructure:"port"`
+	Debug      bool   `mapstructure:"debug"`
 }
 
 type database struct {
-	Engine   string `yaml:"engine"`
-	Host     string `yaml:"host"`
-	Name     string `yaml:"name"`
-	Port     int    `yaml:"port"`
-	User     string `yaml:"user"`
-	Password string `yaml:"password"`
+	Engine   string `mapstructure:"engine"`
+	Host     string `mapstructure:"host"`
+	Name     string `mapstructure:"name"`
+	Port     int    `mapstructure:"port"`
+	User     string `mapstructure:"user"`
+	Password string `mapstructure:"password"`
 }
 
 // New Settings constructor
@@ -58,21 +59,12 @@ func Get(configName string) (*Settings, error) {
 	}
 
 	// Fill in the struct
-	return &Settings{
-		Service: service{
-			Name:       confer.GetString("service.name"),
-			PathPrefix: confer.GetString("service.path_prefix"),
-			Version:    confer.GetString("service.version"),
-			Port:       confer.GetInt("service.port"),
-			Debug:      confer.GetBool("service.debug"),
-		},
-		DB: database{
-			Engine:   confer.GetString("database.engine"),
-			Host:     confer.GetString("database.host"),
-			Name:     confer.GetString("database.name"),
-			Port:     confer.GetInt("database.port"),
-			User:     confer.GetString("database.user"),
-			Password: confer.GetString("database.password"),
-		},
-	}, nil
+	settings := Settings{}
+
+	err = confer.Unmarshal(&settings)
+	if err != nil {
+		return nil, err
+	}
+
+	return &settings, nil
 }
