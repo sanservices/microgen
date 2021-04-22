@@ -11,7 +11,6 @@ import (
 	"{{ cookiecutter.module_name }}/internal/{{ cookiecutter.main_domain }}/repository/mock"
 	"{{ cookiecutter.module_name }}/internal/{{ cookiecutter.main_domain }}/repository/mysql"
 	"{{ cookiecutter.module_name }}/settings"
-	"time"
 )
 
 // New constructs the repository
