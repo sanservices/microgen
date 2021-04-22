@@ -2,7 +2,6 @@ package settings
 
 import (
 	"context"
-
 	logger "github.com/sanservices/apilogger/v2"
 	"github.com/spf13/viper"
 )
