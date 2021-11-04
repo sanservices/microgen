@@ -7,7 +7,7 @@ import (
 	echoMW "github.com/labstack/echo/v4/middleware"
 	apicoreMW "github.com/sanservices/apicore/middleware"
 	logger "github.com/sanservices/apilogger/v2"
-	"{{ cookiecutter.module_name }}/settings"
+	"{{ cookiecutter.module_name }}/goutils/settings"
 )
 
 // RegisterRoutes iterates over handlers and registers them in given echo server instance

@@ -9,10 +9,12 @@ import (
 // service in the containing package will implement
 type Service interface {
 	GetThing(ctx context.Context, id uint) (*entity.Thing, error)
+	CreateThing(ctx context.Context, thing *entity.Thing) error
 }
 
 // Repository declares and summarizes the functionality a
 // repository in the containing package will implement
 type Repository interface {
-	GetThing(ctx context.Context, id uint) (*entity.ThingRec, error)
+	GetThing(ctx context.Context, id uint) (*entity.Thing, error)
+	SaveThing(ctx context.Context, thing *entity.Thing) error
 }

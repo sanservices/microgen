@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/gommon/log"
 	logger "github.com/sanservices/apilogger/v2"
 	"go.uber.org/fx"
-	"{{ cookiecutter.module_name }}/settings"
+	"{{ cookiecutter.module_name }}/goutils/settings"
 )
 
 // NewServer creates new echo server object and registers start and end of lifecycle of app
