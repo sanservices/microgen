@@ -48,17 +48,17 @@
     <script src="https://cdn.sandals.com/swaggerui/swagger-ui-bundle.js"></script>
     <script src="https://cdn.sandals.com/swaggerui/swagger-ui-standalone-preset.js"></script>
     <script>
-      window.onload = function() {
+      window.onload = function () {
         // Begin Swagger UI call region
         const ui = SwaggerUIBundle({
-          url: {% raw %}"{{ .ServicePrefix }}/v1/docs/swagger.yml"{% endraw %},
+          url: "./docs/swagger.yml",
           dom_id: "#swagger-ui",
           deepLinking: true,
           presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
           plugins: [SwaggerUIBundle.plugins.DownloadUrl],
-          layout: "StandaloneLayout"
+          layout: "StandaloneLayout",
         });
-        console.log(ui)
+        console.log(ui);
         // End Swagger UI call region
 
         window.ui = ui;

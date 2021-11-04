@@ -1,5 +1,5 @@
 {
-  "module_name": "github.com/mycompany/things-service.git",
-  "app_name": "things-service",
-  "main_domain": "things"
+  "module_name": "github.com/mycompany/app-name",
+  "app_name": "app_name",
+  "main_domain": "app"
 }

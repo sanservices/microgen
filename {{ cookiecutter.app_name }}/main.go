@@ -1,7 +1,5 @@
 // {{ cookiecutter.app_name }} service
 //
-// {{ cookiecutter.app_name }} service
-//
 // Schemes: http
 // Host: localhost:8080
 // BasePath: /v1
@@ -27,22 +25,24 @@ package main
 
 import (
 	"context"
-	"github.com/sanservices/apicore/validator"
-	logger "github.com/sanservices/apilogger/v2"
-	"go.uber.org/fx"
+
+	"{{ cookiecutter.module_name }}/goutils/dbfactory"
+	"{{ cookiecutter.module_name }}/goutils/settings"
 	"{{ cookiecutter.module_name }}/internal/api"
 	"{{ cookiecutter.module_name }}/internal/api/healthcheck"
-	"{{ cookiecutter.module_name }}/internal/api/v1"
+	v1 "{{ cookiecutter.module_name }}/internal/api/v1"
 	"{{ cookiecutter.module_name }}/internal/{{ cookiecutter.main_domain }}"
 	"{{ cookiecutter.module_name }}/internal/{{ cookiecutter.main_domain }}/repository"
 	"{{ cookiecutter.module_name }}/internal/{{ cookiecutter.main_domain }}/service"
-	"{{ cookiecutter.module_name }}/settings"
+	"github.com/sanservices/apicore/validator"
+	logger "github.com/sanservices/apilogger/v2"
+	"go.uber.org/fx"
 )
 
 func main() {
-	fx.New(
+	app := fx.New(
 		// Set logger to custom one
-		fx.Logger(logger.New()),
+		// fx.Logger(logger.New()),
 
 		fx.Provide(
 			// Provide new instances of structs
@@ -52,6 +52,8 @@ func main() {
 			logger.New,
 			// Settings
 			settings.New,
+			// database connection
+			dbfactory.New,
 			// Repo
 			repository.New,
 			// Service
@@ -61,7 +63,7 @@ func main() {
 			// New server
 			api.NewServer,
 			// Add all handlers here
-			func(cfg *settings.Settings, srv {{ cookiecutter.main_domain }}.Service, vld *validator.Validator) []api.Handler {
+			func(cfg *settings.Settings, srv app.Service, vld *validator.Validator) []api.Handler {
 				return []api.Handler{
 					healthcheck.NewHandler(),     // For Healthchecks
 					v1.NewHandler(cfg, srv, vld), // v1
@@ -77,5 +79,7 @@ func main() {
 			// Register routes
 			api.RegisterRoutes,
 		),
-	).Run()
+	)
+
+	app.Run()
 }
