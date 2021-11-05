@@ -14,7 +14,7 @@ $ brew install cookiecutter
 
 Finally, to run it based on this template, type:
 ```console
-$ cookiecutter https://github.com/sanservices/microgen.git
+$ cookiecutter https://github.com/sanservices/microgen
 ```
 
 or if you cloned the repository
