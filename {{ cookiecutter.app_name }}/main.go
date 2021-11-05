@@ -63,7 +63,7 @@ func main() {
 			// New server
 			api.NewServer,
 			// Add all handlers here
-			func(cfg *settings.Settings, srv app.Service, vld *validator.Validator) []api.Handler {
+			func(cfg *settings.Settings, srv {{ cookiecutter.main_domain }}.Service, vld *validator.Validator) []api.Handler {
 				return []api.Handler{
 					healthcheck.NewHandler(),     // For Healthchecks
 					v1.NewHandler(cfg, srv, vld), // v1
