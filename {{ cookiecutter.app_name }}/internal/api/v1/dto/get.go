@@ -10,7 +10,7 @@ type getThingRQ struct {
 	ID string `json:"id"`
 }
 
-// swagger:model getThingRS
+// swagger:response getThingRS
 type getThingRS struct {
 	// in: body
 	Thing *entity.Thing `json:"thing"`

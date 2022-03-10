@@ -1,6 +1,8 @@
-// {{ cookiecutter.app_name }} service
+// Package Classification {{ cookiecutter.app_name }}
 //
-// Schemes: http
+// {{ cookiecutter.app_description }}
+//
+// Schemes: http, https
 // Host: localhost:8080
 // BasePath: /v1
 // Version: 1.0
@@ -26,7 +28,9 @@ package main
 import (
 	"context"
 
+	"github.com/labstack/echo/v4"
 	"{{ cookiecutter.module_name }}/goutils/dbfactory"
+	"{{ cookiecutter.module_name }}/goutils/fxhooks"
 	"{{ cookiecutter.module_name }}/goutils/settings"
 	"{{ cookiecutter.module_name }}/internal/api"
 	"{{ cookiecutter.module_name }}/internal/api/healthcheck"
@@ -51,7 +55,7 @@ func main() {
 			// Logger
 			logger.New,
 			// Settings
-			settings.New,
+			settings.GetDefault,
 			// database connection
 			dbfactory.New,
 			// Repo
@@ -60,13 +64,13 @@ func main() {
 			service.New,
 			// Validator
 			validator.NewValidator,
-			// New server
-			api.NewServer,
+			// New Echo instance
+			echo.New,
 			// Add all handlers here
-			func(cfg *settings.Settings, srv {{ cookiecutter.main_domain }}.Service, vld *validator.Validator) []api.Handler {
+			func(config *settings.Settings, srv {{ cookiecutter.main_domain }}.Service, vld *validator.Validator) []api.Handler {
 				return []api.Handler{
-					healthcheck.NewHandler(),     // For Healthchecks
-					v1.NewHandler(cfg, srv, vld), // v1
+					healthcheck.NewHandler(config),     // For Healthchecks
+					v1.NewHandler(config, srv, vld), // v1
 				}
 			},
 		),
@@ -75,9 +79,10 @@ func main() {
 			func(ctx context.Context, l *logger.Logger) {
 				logger.Info(ctx, logger.LogCatStartUp, "Initializing the app")
 			},
-
-			// Register routes
+			// Register all endpoints
 			api.RegisterRoutes,
+			// Configures the onStart and onStop events.
+			fxhooks.SetLifeCycleHooks,
 		),
 	)
 

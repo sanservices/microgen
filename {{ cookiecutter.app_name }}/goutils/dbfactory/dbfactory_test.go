@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/sanservices/kit/database"
 	"{{ cookiecutter.module_name }}/goutils/settings"
 )
 
@@ -20,12 +21,12 @@ func TestNew(t *testing.T) {
 
 	cases := []struct {
 		Name          string
-		DBSettings    settings.Database
+		DBSettings    database.DatabaseConfig
 		ExpectedError error
 	}{
 		{
 			Name: "Should create a sqlite connection",
-			DBSettings: settings.Database{
+			DBSettings: database.DatabaseConfig{
 				Engine: "sqlite",
 				Name:   dbName,
 			},
@@ -34,7 +35,7 @@ func TestNew(t *testing.T) {
 
 		{
 			Name: "Should fail with unsuported database engine",
-			DBSettings: settings.Database{
+			DBSettings: database.DatabaseConfig{
 				Engine: "random-engine",
 				Name:   dbName,
 			},

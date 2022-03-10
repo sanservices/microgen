@@ -1,32 +1,20 @@
-"""
-Does the following:
-1. Inits
-"""
-from __future__ import print_function
 import os
-from subprocess import Popen
 
-# Get the root project directory
-PROJECT_DIRECTORY = os.path.realpath(os.path.curdir)
+COMMANDS = [
+    "ls -l -R -1",
+    # 1. Format the project
+    "gofmt -s -w .",
 
-def init_git():
-    """
-    Initialises git on the new project folder
-    """
-    GIT_COMMANDS = [
-        ["git", "init"],
-        ["git", "add", "."],
-        ["git", "commit", "-a", "-m", "Initial Commit."]
-    ]
+    # 2. Install dependencies
+    "echo Installing dependencies...",
+    "go mod download",
 
-    for command in GIT_COMMANDS:
-        git = Popen(command, cwd=PROJECT_DIRECTORY)
-        git.wait()
+    # 3. Making sure that the go.mod file matches the source code in the module
+    "echo Running go mod tidy...",
+    "go mod tidy",
 
+    "echo Project ready"
+]
 
-
-# 1. Initialize Git
-init_git()
-
-# 2. Format the project
-os.system("gofmt -s -w .")
+for command in COMMANDS:
+    os.system(command)

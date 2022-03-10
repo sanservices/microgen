@@ -16,7 +16,10 @@ WORKDIR /${project}
 RUN dir=$(mktemp -d) && \
     git clone https://github.com/go-swagger/go-swagger "$dir" && \
     cd "$dir" && \
-    go install ./cmd/swagger
+    git checkout v0.27.0 && \
+    go install \
+    -ldflags "-X github.com/go-swagger/go-swagger/cmd/swagger/commands.Version=$(git describe --tags) -X github.com/go-swagger/go-swagger/cmd/swagger/commands.Commit=$(git rev-parse HEAD)" \
+    ./cmd/swagger
 
 # Install pacakge dependencies.
 COPY ["go.mod", "go.sum", "./"]
@@ -35,7 +38,9 @@ RUN if [[ -n "$swagger_host" ]] ; then \
     sed -i "s/localhost:8080/${swagger_host}/g" internal/api/v1/swagger/swagger.yml; \
     fi
 
-RUN go build -o ./${project}
+RUN go build \
+    -ldflags="-s -w" \
+    -o ./${project}
 
 # Compress binary file
 RUN upx ./${project}

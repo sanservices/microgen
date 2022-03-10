@@ -11,6 +11,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/sanservices/kit/database"
 )
 
 var (
@@ -22,22 +23,21 @@ func New(config *settings.Settings) (*sqlx.DB, error) {
 
 	switch config.DB.Engine {
 	case "mysql":
-		return CreateMySqlConnection(config)
+		return CreateMySqlConnection(&config.DB)
 
 	case "sqlite":
-		return CreateSqliteConnection(config)
+		return CreateSqliteConnection(&config.DB)
 
 	default:
 		return nil, ErrInvalidDBEngine
 	}
 }
 
-func CreateMySqlConnection(config *settings.Settings) (*sqlx.DB, error) {
+func CreateMySqlConnection(dbConfig *database.DatabaseConfig) (*sqlx.DB, error) {
 
 	var connectionString string
 	var db *sqlx.DB
 	var err error
-	dbConfig := config.DB
 
 	connectionString = fmt.Sprintf(
 		"%s:%s@tcp(%s:%d)/%s?parseTime=true",
@@ -59,9 +59,9 @@ func CreateMySqlConnection(config *settings.Settings) (*sqlx.DB, error) {
 	return db, nil
 }
 
-func CreateSqliteConnection(config *settings.Settings) (*sqlx.DB, error) {
+func CreateSqliteConnection(config *database.DatabaseConfig) (*sqlx.DB, error) {
 	log.Println("Connecting to database...")
-	source := fmt.Sprintf("./%s.db", config.DB.Name)
+	source := fmt.Sprintf("./%s.db", config.Name)
 
 	db, err := sqlx.Connect("sqlite3", source)
 
@@ -74,11 +74,11 @@ func CreateSqliteConnection(config *settings.Settings) (*sqlx.DB, error) {
 	return db, nil
 }
 
-func CreateRedisConnection(ctx context.Context, config *settings.Cache) (*redis.Client, error) {
+func CreateRedisConnection(ctx context.Context, config *database.RedisConfig) (*redis.Client, error) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     config.Addr,
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Password: config.Password, // no password set
+		DB:       config.DB,  // use default DB
 	})
 
 	err := rdb.Ping(ctx).Err()

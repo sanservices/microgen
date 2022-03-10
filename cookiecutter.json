@@ -1,5 +1,6 @@
 {
   "module_name": "github.com/mycompany/app-name",
   "app_name": "app_name",
+  "app_description": "The purpose of this app is to ...",
   "main_domain": "app"
 }

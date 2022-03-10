@@ -1,13 +1,20 @@
 Service:
   name: "{{ cookiecutter.app_name }}"
-  path_prefix: ""
   version: "0.0.1"
   debug: false
   port: 8080
 Database:
   engine: "sqlite"
   host: ""
-  name: "{{ cookiecutter.app_name }}_db"
+  name: "{{ cookiecutter.app_name }}"
   port: 3306
   user: ""
   password: ""
+Cache:
+  enabled: false
+  expiration_minutes: 10
+  purge_minutes: 60
+  Redis:
+    addr: "localhost:6379"
+    password: ""
+    db: 0
