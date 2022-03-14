@@ -38,6 +38,10 @@ import (
 	"{{ cookiecutter.module_name }}/internal/{{ cookiecutter.main_domain }}"
 	"{{ cookiecutter.module_name }}/internal/{{ cookiecutter.main_domain }}/repository"
 	"{{ cookiecutter.module_name }}/internal/{{ cookiecutter.main_domain }}/service"
+	{% if cookiecutter.include_kafka == 'Yes' %}
+	"github.com/sanservices/kit/kafkalistener"
+	"{{ cookiecutter.module_name }}/internal/kafka"
+	{% endif %}
 	"github.com/sanservices/apicore/validator"
 	logger "github.com/sanservices/apilogger/v2"
 	"go.uber.org/fx"
@@ -69,10 +73,18 @@ func main() {
 			// Add all handlers here
 			func(config *settings.Settings, srv {{ cookiecutter.main_domain }}.Service, vld *validator.Validator) []api.Handler {
 				return []api.Handler{
-					healthcheck.NewHandler(config),     // For Healthchecks
+					healthcheck.NewHandler(config),  // For Healthchecks
 					v1.NewHandler(config, srv, vld), // v1
 				}
 			},
+			{% if cookiecutter.include_kafka == 'Yes' %}
+			// New kafkalistener instance
+			func(ctx context.Context, config *settings.Settings) (*kafkalistener.MessageBroker, error) {
+				return kafkalistener.New(ctx, &config.Kafka, config.Service.Debug)
+			},
+			// New kafka instance
+			kafka.New,
+			{% endif %}
 		),
 		fx.Invoke(
 			// Use logger to initialize it globally
