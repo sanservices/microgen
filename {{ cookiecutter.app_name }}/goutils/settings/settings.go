@@ -7,6 +7,9 @@ import (
 	"time"
 
 	"github.com/sanservices/kit/database"
+	{% if cookiecutter.include_kafka == 'Yes' %}
+	"github.com/sanservices/kit/kafkalistener"
+	{% endif %}
 	"gopkg.in/yaml.v2"
 )
 
@@ -22,9 +25,12 @@ var (
 )
 
 type Settings struct {
-	Service Service                 `yaml:"Service"`
-	Cache   Cache                   `yaml:"Cache"`
-	DB      database.DatabaseConfig `yaml:"Database"`
+	Service Service                   `yaml:"Service"`
+	Cache   Cache                     `yaml:"Cache"`
+	DB      database.DatabaseConfig   `yaml:"Database"`
+	{% if cookiecutter.include_kafka == 'Yes' %}
+	Kafka   kafkalistener.KafkaConfig `yaml:"Kafka"`
+	{% endif %}
 }
 
 type Service struct {
