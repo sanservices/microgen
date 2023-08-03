@@ -14,8 +14,8 @@ const (
 
 type Config struct {
 	Service  Service                   `yaml:"Service"`
-	Database Database                  `yaml:"Database"`
-	Cache    Cache                     `yaml:"Cache"`
+	{% if cookiecutter.use_database == 'y' %}Database Database                  `yaml:"Database"`{% endif %}
+	{% if cookiecutter.use_cache == 'y' %}Cache    Cache                     `yaml:"Cache"`{% endif %}
 	{% if cookiecutter.use_kafka == 'y' %}Kafka    kafkalistener.KafkaConfig `yaml:"Kafka"`{% endif %}
 }
 
@@ -26,6 +26,7 @@ type Service struct {
 	// TODO: Add debug flag
 }
 
+{% if cookiecutter.use_database == 'y' %}
 type Database struct {
 	Engine   string `yaml:"engine"`
 	User     string `yaml:"user"`
@@ -34,12 +35,15 @@ type Database struct {
 	Port     int    `yaml:"port"`
 	Name     string `yaml:"name"`
 }
+{% endif %}
 
+{% if cookiecutter.use_cache == 'y' %}
 type Cache struct {
 	Address  string `yaml:"address"`
 	Password string `yaml:"password"`
 	DB       int    `yaml:"db"`
 }
+{% endif %}
 
 func New(ctx context.Context) (*Config, error) {
 	config := &Config{}
