@@ -1,7 +1,8 @@
 {
-  "module_name": "github.com/mycompany/app-name",
-  "app_name": "app_name",
-  "app_description": "The purpose of this app is to ...",
-  "main_domain": "app",
-  "include_kafka": ["Yes", "No"]
+  "module_name": "github.com/my_company/service_name",
+  "service_name": "service_name",
+  "entity_name": "entity",
+  "use_database": "y/n",
+  "use_cache": "y/n",
+  "use_kafka": "y/n"
 }
