@@ -71,7 +71,7 @@ func main() {
 		),
 
 		fx.Invoke(
-			// Initialize log globaly
+			// Print log startup
 			func(ctx context.Context, l *log.Logger) {
 				l.Info(ctx, log.LogCatStartUp, "Initializing {{ cookiecutter.service_name }} service")
 			},

@@ -5,12 +5,14 @@ import (
 )
 
 type Service struct {
+	config *config.Config
 	repo {{ cookiecutter.entity_name }}.Repository
 }
 
 // New returns service instance
-func New(repo {{ cookiecutter.entity_name }}.Repository) {{ cookiecutter.entity_name }}.Service {
+func New(config *config.Config, repo {{ cookiecutter.entity_name }}.Repository) {{ cookiecutter.entity_name }}.Service {
 	return &Service{
-		repo: repo,
+		config: config,
+		repo:   repo,
 	}
 }
