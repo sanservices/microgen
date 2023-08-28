@@ -7,6 +7,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/sanservices/apicore v1.1.1
+	github.com/sanservices/kit v1.3.8
 	go.uber.org/fx v1.19.3
 	gopkg.in/yaml.v2 v2.4.0
 )

@@ -2,6 +2,7 @@ package service
 
 import (
 	"{{ cookiecutter.module_name }}/internal/{{ cookiecutter.entity_name }}"
+	"{{ cookiecutter.module_name }}/config"
 )
 
 type Service struct {

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/sanservices/apicore/validator"
+	"{{ cookiecutter.module_name }}/config"
 	"{{ cookiecutter.module_name }}/internal/{{ cookiecutter.entity_name }}"
 )
 

@@ -62,10 +62,10 @@ func main() {
 			api.New,
 			
 			// Initialize handlers
-			func(service {{ cookiecutter.entity_name }}.Service) []api.Handler {
+			func(config *config.Config, service {{ cookiecutter.entity_name }}.Service) []api.Handler {
 				return []api.Handler{
 					statushandler.New(),
-					handler.New(service),
+					handler.New(config, service),
 				}
 			},
 		),

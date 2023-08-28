@@ -2,8 +2,6 @@ import os
 import shutil
 import yaml
 
-from cookiecutter.main import cookiecutter
-
 
 # Get the root project directory
 PROJECT_DIRECTORY = os.path.realpath(os.path.curdir)
