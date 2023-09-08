@@ -1,6 +1,6 @@
-# cookiecutter-golang
+# Microservice generator using cookiecutter-golang
 
-## Usage
+## Installation
 
 First, get Cookiecutter.
 ```console
@@ -11,6 +11,8 @@ Alternatively, you can install `cookiecutter` with homebrew:
 ```console
 $ brew install cookiecutter
 ```
+
+## Run
 
 Finally, to run it based on this template, type:
 ```console

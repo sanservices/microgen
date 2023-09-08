@@ -7,13 +7,19 @@ import yaml
 PROJECT_DIRECTORY = os.path.realpath(os.path.curdir)
 
 COMMANDS = [
-   # 1. Make sure that the go.mod file matches the source code in the module
-   "echo Running go mod tidy...",
+   # 1. Go get swaggo
+   "echo Running go get swaggo...",
+   "go get github.com/swaggo/swag"
+
+   # 2. Make sure that the go.mod file matches the source code in the module
+   "&& echo Running go mod tidy...",
    "go mod tidy -v"
 
-   # 2. Is used to format Go source code according to the official Go formatting guidelines.
+   # 3. Is used to format Go source code according to the official Go formatting guidelines.
    "&& echo Running go fmt...",
    "gofmt -l -s -w ."
+
+
 ]
 
 def remove_database():
@@ -29,10 +35,24 @@ def remove_cache():
    """
    Removes folder needed for redis cache if it isn't going to be used
    """
-   
-   shutil.rmtree(os.path.join(
-      PROJECT_DIRECTORY, "cache"
-   ))
+
+   # Define the directory name you want to search for
+   target_dir = "redis"
+
+   # Initialize an empty list to store the paths of matching directories
+   found_dirs = []
+
+   # Walk through the directory tree starting from the root_dir
+   for dirpath, dirnames, filenames in os.walk(PROJECT_DIRECTORY):
+       if target_dir in dirnames:
+           found_dirs.append(os.path.join(dirpath, target_dir))
+           shutil.rmtree(os.path.join(
+               dirpath, target_dir
+            ))
+
+   # Print the paths of found directories
+   for found_dir in found_dirs:
+    print("Found directory:", found_dir)
 
 def remove_kafka():
    """
