@@ -1,9 +1,10 @@
 package sqlite
 
+{% if cookiecutter.use_database == 'y' %}
 import (
 	"context"
 
-	"{{ cookiecutter.module_name }}/internal/{{ cookiecutter.app_name }}/entity"
+	"{{ cookiecutter.module_name }}/internal/{{ cookiecutter.service_name }}/entity"
 )
 
 func (s *Sqlite) GetUser(ctx context.Context, id uint) (*entity.User, error) {
@@ -19,3 +20,4 @@ func (s *Sqlite) SaveUser(ctx context.Context, thing *entity.User) error {
 
 	return err
 }
+{% endif %}

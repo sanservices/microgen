@@ -1,8 +1,9 @@
 package oracle
 
+{% if cookiecutter.use_database == 'y' %}
 import (
 	"context"
-	"{{ cookiecutter.module_name }}/internal/{{ cookiecutter.app_name }}/entity"
+	"{{ cookiecutter.module_name }}/internal/{{ cookiecutter.service_name }}/entity"
 )
 
 // GetThing stands for getting a thing from db
@@ -18,3 +19,4 @@ func (m *Oracle) SaveUser(ctx context.Context, thing *entity.User) error {
 	//TODO: Implement mysql calls
 	return nil
 }
+{% endif %}

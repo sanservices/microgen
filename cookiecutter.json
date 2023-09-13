@@ -1,7 +1,7 @@
 {
-  "module_name": "github.com/my_company/root_directory_name",
   "root_directory_name": "root_directory_name",
-  "app_name": "app",
+  "module_name": "github.com/sanservices/root_directory_name",
+  "service_name": "service",
   "use_database": "y/n",
   "use_cache": "y/n",
   "use_kafka": "y/n"

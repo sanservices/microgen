@@ -3,16 +3,16 @@ package v1
 import (
 	"github.com/sanservices/apicore/validator"
 	"{{ cookiecutter.module_name }}/config"
-	"{{ cookiecutter.module_name }}/internal/{{ cookiecutter.app_name }}"
+	"{{ cookiecutter.module_name }}/internal/{{ cookiecutter.service_name }}"
 )
 
 type Handler struct {
 	config   *config.Config
-	service  {{ cookiecutter.app_name }}.Service
+	service  {{ cookiecutter.service_name }}.Service
 	validate *validator.Validator
 }
 
-func New(config *config.Config, service {{ cookiecutter.app_name }}.Service) *Handler {
+func New(config *config.Config, service {{ cookiecutter.service_name }}.Service) *Handler {
 	return &Handler{
 		config:   config,
 		service:  service,

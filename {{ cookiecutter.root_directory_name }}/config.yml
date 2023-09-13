@@ -12,9 +12,13 @@ Database:
 {% endif %}
 {% if cookiecutter.use_cache == 'y' %}
 Cache:
-  address:
-  password:
-  db:
+  enabled:
+  expiration_minutes:
+  purge_minutes:
+  Redis:
+    addr:
+    password:
+    db:
 {% endif %}
 {% if cookiecutter.use_kafka == 'y' %}
 Kafka:

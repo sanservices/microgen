@@ -1,6 +1,6 @@
 package dto
 
-import "{{ cookiecutter.module_name }}/internal/{{ cookiecutter.app_name }}/entity"
+import "{{ cookiecutter.module_name }}/internal/{{ cookiecutter.service_name }}/entity"
 
 // Examples with validation
 type GetUserRQ struct {

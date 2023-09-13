@@ -12,9 +12,10 @@ import (
 	api "{{ cookiecutter.module_name }}/internal/api"
 	handler "{{ cookiecutter.module_name }}/internal/api/v1"
 	healthcheck "{{ cookiecutter.module_name }}/internal/api/healthcheck"
-	{{ cookiecutter.app_name }} "{{ cookiecutter.module_name }}/internal/{{ cookiecutter.app_name }}"
-	repository "{{ cookiecutter.module_name }}/internal/{{ cookiecutter.app_name }}/repository"
-	service "{{ cookiecutter.module_name }}/internal/{{ cookiecutter.app_name }}/service"
+	{{ cookiecutter.service_name }} "{{ cookiecutter.module_name }}/internal/{{ cookiecutter.service_name }}"
+	repository "{{ cookiecutter.module_name }}/internal/{{ cookiecutter.service_name }}/repository"
+	{% if cookiecutter.use_cache == 'y' %}redis "{{ cookiecutter.module_name }}/internal/{{ cookiecutter.service_name }}/repository/redis"{% endif %}
+	service "{{ cookiecutter.module_name }}/internal/{{ cookiecutter.service_name }}/service"
 	"github.com/labstack/echo/v4"
 	log "github.com/sanservices/apilogger/v2"
 
@@ -38,6 +39,11 @@ func main() {
 			db.New,
 			{% endif %}
 
+			{% if cookiecutter.use_cache == 'y' %}
+			// Initialize redis connection
+			redis.New,
+			{% endif %}
+
 			// Intialize repository layer for databases transactions
 			repository.New,
 
@@ -56,7 +62,7 @@ func main() {
 			api.New,
 			
 			// Initialize handlers
-			func(config *config.Config, service {{ cookiecutter.app_name }}.Service) []api.Handler {
+			func(config *config.Config, service {{ cookiecutter.service_name }}.Service) []api.Handler {
 				return []api.Handler{
 					healthcheck.New(),
 					handler.New(config, service),
