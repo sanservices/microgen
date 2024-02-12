@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	{% if cookiecutter.use_cache != 'n' %}"fmt"{% endif %}
 
 	"{{ cookiecutter.module_name }}/internal/{{ cookiecutter.service_name }}/entity"
 )
@@ -13,6 +12,8 @@ func (s *Service) GetUser(ctx context.Context, id uint) (*entity.User, error) {
 	{% if cookiecutter.use_database == 'y' %}
 	return s.repo.GetUser(ctx, id)
 	{% else %}
+	u := &entity.User{}
+
 	return u, nil
 	{% endif %}
 }
