@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	fPath = "config.yml"
+	fPath = "settings.yml"
 )
 
-type Config struct {
+type Settings struct {
 	Service  Service                   `yaml:"Service"`
 	{% if cookiecutter.use_database == 'y' %}Database  database.DatabaseConfig                  `yaml:"Database"`{% endif %}
 	{% if cookiecutter.use_cache == 'y' %}Cache    Cache                     `yaml:"Cache"`{% endif %}
@@ -38,19 +38,19 @@ type Cache struct {
 }
 {% endif %}
 
-func New(ctx context.Context) (*Config, error) {
-	config := &Config{}
+func New(ctx context.Context) (*Settings, error) {
+	settings := &Settings{}
 
-	//Read config file
+	//Read settings file
 	cf, err := os.ReadFile(fPath)
 	if err != nil {
 		return nil, err
 	}
 
-	err = yaml.Unmarshal(cf, config)
+	err = yaml.Unmarshal(cf, settings)
 	if err != nil {
 		return nil, err
 	}
 
-	return config, nil
+	return settings, nil
 }

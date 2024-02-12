@@ -18,7 +18,7 @@ import (
 var ErrInvalidDBEngine = errors.New("unsoported or missing database engine")
 
 // New repository instance
-func New(ctx context.Context, cfg *config.Config{% if cookiecutter.use_database == 'y' %} ,db *sqlx.DB,{% endif %}) ({{ cookiecutter.service_name }}.Repository, error) {
+func New(ctx context.Context, cfg *config.Settings{% if cookiecutter.use_database == 'y' %} ,db *sqlx.DB,{% endif %}) ({{ cookiecutter.service_name }}.Repository, error) {
 
 	{% if cookiecutter.use_database == 'y' %}
 	switch cfg.Database.Engine {

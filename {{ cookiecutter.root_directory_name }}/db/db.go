@@ -13,7 +13,7 @@ var (
 	ErrInvalidDatabaseEngine = errors.New("unsopported database engine")
 )
 
-func New(ctx context.Context, config *config.Config) (*sqlx.DB, error) {
+func New(ctx context.Context, config *config.Settings) (*sqlx.DB, error) {
 	switch config.Database.Engine {
 	case "mysql":
 		return database.CreateMySqlConnection(ctx, config.Database)

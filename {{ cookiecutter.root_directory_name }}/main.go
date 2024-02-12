@@ -62,7 +62,7 @@ func main() {
 			api.New,
 			
 			// Initialize handlers
-			func(config *config.Config, service {{ cookiecutter.service_name }}.Service) []api.Handler {
+			func(config *config.Settings, service {{ cookiecutter.service_name }}.Service) []api.Handler {
 				return []api.Handler{
 					healthcheck.New(),
 					handler.New(config, service),
@@ -80,10 +80,10 @@ func main() {
 			api.RegisterRoutes,
 			
 			// Adds the OnStart & OnStop callbacks
-			func(lc fx.Lifecycle, ctx context.Context, config *config.Config, e *echo.Echo, {% if cookiecutter.use_database == 'y' %}db *sqlx.DB,{% endif %} {% if cookiecutter.use_kafka == 'y' %}k *kafka.Kafka{% endif %}) {
+			func(lc fx.Lifecycle, ctx context.Context, config *config.Settings, e *echo.Echo, {% if cookiecutter.use_database == 'y' %}db *sqlx.DB,{% endif %} {% if cookiecutter.use_kafka == 'y' %}k *kafka.Kafka{% endif %}) {
 				lc.Append(fx.Hook{
 					OnStart: func(ctx context.Context) error {
-						go startListener(ctx, config, e)
+						go startRestAPI(ctx, config, e)
 						{%- if cookiecutter.use_kafka == 'y' %}
 						go k.StartListener(ctx)
 						{% endif %}
@@ -114,7 +114,7 @@ func main() {
 	app.Run()
 }
 
-func startListener(ctx context.Context, config *config.Config, e *echo.Echo) {
+func startRestAPI(ctx context.Context, config *config.Settings, e *echo.Echo) {
 	address := fmt.Sprintf(":%d", config.Service.Port)
 
 	log.Infof(ctx, log.LogCatUncategorized, "See swagger at http://localhost:%d/v1/docs", config.Service.Port)
