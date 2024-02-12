@@ -20,7 +20,7 @@ type Cache struct {
 var ErrCacheDisabled error = errors.New("cache is not enabled")
 
 // New returns a Cache instance
-func New(ctx context.Context, config *config.Config) (*Cache, error) {
+func New(ctx context.Context, config *config.Settings) (*Cache, error) {
 
 	var rdb *redis.Client
 	var err error

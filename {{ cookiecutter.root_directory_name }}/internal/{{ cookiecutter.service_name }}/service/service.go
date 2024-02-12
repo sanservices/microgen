@@ -6,13 +6,13 @@ import (
 )
 
 type Service struct {
-	config *config.Config
+	config *config.Settings
 	repo {{ cookiecutter.service_name }}.Repository
 	{% if cookiecutter.use_cache != 'n' %}redis {{ cookiecutter.service_name }}.Cache{% endif %}
 }
 
 // New returns service instance
-func New(config *config.Config, repo {{ cookiecutter.service_name }}.Repository {% if cookiecutter.use_cache != 'n' %}, redis {{ cookiecutter.service_name }}.Cache{% endif %}) {{ cookiecutter.service_name }}.Service {
+func New(config *config.Settings, repo {{ cookiecutter.service_name }}.Repository {% if cookiecutter.use_cache != 'n' %}, redis {{ cookiecutter.service_name }}.Cache{% endif %}) {{ cookiecutter.service_name }}.Service {
 	return &Service{
 		config: config,
 		repo:   repo,

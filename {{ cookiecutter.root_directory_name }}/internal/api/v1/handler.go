@@ -7,12 +7,12 @@ import (
 )
 
 type Handler struct {
-	config   *config.Config
+	config   *config.Settings
 	service  {{ cookiecutter.service_name }}.Service
 	validate *validator.Validator
 }
 
-func New(config *config.Config, service {{ cookiecutter.service_name }}.Service) *Handler {
+func New(config *config.Settings, service {{ cookiecutter.service_name }}.Service) *Handler {
 	return &Handler{
 		config:   config,
 		service:  service,
