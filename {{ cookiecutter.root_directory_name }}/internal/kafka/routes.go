@@ -10,7 +10,11 @@ import (
 // Handlers returns a list of Kafka route handlers.
 func (k *Kafka) routes() []kafkalistener.RouteHandler {
 	return []kafkalistener.RouteHandler{
-		{},
+		{
+			Name:        "update_thing",
+			Topic:       TopicUpdateThings,
+			HandlerFunc: k.processThingUpdate,
+		},
 	}
 }
 

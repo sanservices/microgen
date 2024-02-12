@@ -31,6 +31,10 @@ def remove_database():
       PROJECT_DIRECTORY, "db"
    ))
 
+   deleteDirectory("mysql")
+   deleteDirectory("oracle")
+   deleteDirectory("sqlite")
+
 def remove_cache():
    """
    Removes folder needed for redis cache if it isn't going to be used
@@ -48,6 +52,22 @@ def remove_cache():
            found_dirs.append(os.path.join(dirpath, target_dir))
            shutil.rmtree(os.path.join(
                dirpath, target_dir
+            ))
+
+   # Print the paths of found directories
+   for found_dir in found_dirs:
+    print("Found directory:", found_dir)
+    
+def deleteDirectory(dir):
+   # Initialize an empty list to store the paths of matching directories
+   found_dirs = []
+
+   # Walk through the directory tree starting from the root_dir
+   for dirpath, dirnames, filenames in os.walk(PROJECT_DIRECTORY):
+       if dir in dirnames:
+           found_dirs.append(os.path.join(dirpath, dir))
+           shutil.rmtree(os.path.join(
+               dirpath, dir
             ))
 
    # Print the paths of found directories
