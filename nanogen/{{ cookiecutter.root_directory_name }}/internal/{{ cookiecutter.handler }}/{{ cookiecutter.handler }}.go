@@ -1,8 +1,6 @@
 package handler
 
-import (
-	"function/internal/repository"
-)
+import "function/internal/repository"
 
 type Handler struct {
 	db repository.Repository

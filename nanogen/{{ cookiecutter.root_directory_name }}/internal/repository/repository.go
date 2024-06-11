@@ -1,13 +1,26 @@
 package repository
 
-import "github.com/jmoiron/sqlx"
+import (
+	"context"
+	"errors"
+	"function/internal/config"
+	"function/internal/repository/mysql"
+	"function/internal/repository/oracle"
 
-type Repository struct {
-	DB *sqlx.DB
-}
+	"github.com/jmoiron/sqlx"
+)
 
-func New(db *sqlx.DB) *Repository {
-	return &Repository{
-		DB: db,
+// Repository is the contract interface for the repository layer,
+// responsible for data storage and retrieval.
+type Repository interface{}
+
+func New(ctx context.Context, cfg *config.Settings, db *sqlx.DB) (Repository, error) {
+	switch cfg.Database.Engine {
+	case "mysql":
+		return mysql.New(db), nil
+	case "oracle":
+		return oracle.New(db), nil
+	default:
+		return nil, errors.ErrUnsupported
 	}
 }
