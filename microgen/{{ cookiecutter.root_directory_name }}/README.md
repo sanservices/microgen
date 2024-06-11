@@ -1,4 +1,4 @@
-# {{ cookiecutter.module_name }} service
+# Service
 
 ## Overview
 
@@ -22,7 +22,7 @@ and then
 
 ```
 docker run --name {{ cookiecutter.module_name }}-service -p 8080:8080 {{ cookiecutter.module_name }}-service:latest
-```  
+```
 
 in the project's root directory.
 
@@ -52,47 +52,45 @@ Dockerfile__ also, or what you have in developement won't match the other docker
 3. Install go-swagger: https://github.com/go-swagger/go-swagger.git
 4. In `${projectRoot}/settings`, create a `settings.yml` and `settings_test.yml`, both containing the following:
 
-    ```
-    service:
-    name: "{{ cookiecutter.module_name }}"
-    path_prefix: ""
-    version: "1"
-    debug: true
-    port: 8080
-    cache:
-    enabled: true
-    username: ""
-    password: ""
-    host: "localhost"
-    port: 6379
-    database:
-    engine: "inmemory"
-    host: ""
-    name: ""
-    port: 3306
-    user: ""
-    password: ""
-    ```
-
+   ```
+   service:
+   name: "{{ cookiecutter.module_name }}"
+   path_prefix: ""
+   version: "1"
+   debug: true
+   port: 8080
+   cache:
+   enabled: true
+   username: ""
+   password: ""
+   host: "localhost"
+   port: 6379
+   database:
+   engine: "inmemory"
+   host: ""
+   name: ""
+   port: 3306
+   user: ""
+   password: ""
+   ```
 5. Run the app by simply running the command:
 
-    ```
-    modd
-    ```
+   ```
+   modd
+   ```
 
    To run the app without modd pre-compiling and hot reloading, run:
 
-    ```
-    go run main.go
-    ```
+   ```
+   go run main.go
+   ```
 
    To generate swagger docs without modd or docker:
 
-    ```
-    swagger generate spec -w ./internal/api/v1 -o ./files/swaggerui/v1/swagger.yml --scan-models
-    statik -dest internal/api/v1/docs -p swagger -src=./files/swaggerui/v1 -f
-    ```
-
+   ```
+   swagger generate spec -w ./internal/api/v1 -o ./files/swaggerui/v1/swagger.yml --scan-models
+   statik -dest internal/api/v1/docs -p swagger -src=./files/swaggerui/v1 -f
+   ```
 6. Try out some of the test endpoints
 
    Download an API client like Postman (https://www.postman.com/downloads/) to be able to test the project API.
