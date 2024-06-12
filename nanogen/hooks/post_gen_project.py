@@ -13,8 +13,6 @@ COMMANDS = [
    # 2. Is used to format Go source code according to the official Go formatting guidelines.
    "&& echo Running go fmt...",
    "gofmt -l -s -w ."
-
-
 ]
 
 def remove_database():
@@ -27,7 +25,11 @@ def remove_database():
    ))
    
    shutil.rmtree(os.path.join(
-      PROJECT_DIRECTORY, "internal/repository"
+      PROJECT_DIRECTORY, "internal/repository/mysql"
+   ))
+   
+   shutil.rmtree(os.path.join(
+      PROJECT_DIRECTORY, "internal/repository/oracle"
    ))
 
 def remove_sftp():
@@ -37,6 +39,14 @@ def remove_sftp():
    shutil.rmtree(os.path.join(
       PROJECT_DIRECTORY, "internal/sftp"
    ))
+   
+def remove_cache():
+   """
+   Add kn function files
+   """
+   shutil.rmtree(os.path.join(
+      PROJECT_DIRECTORY, "internal/repository/redis"
+   ))
 
 def main():   
    if '{{ cookiecutter.use_database }}'.upper() != 'Y':
@@ -44,7 +54,11 @@ def main():
    
    if '{{ cookiecutter.use_sftp }}'.upper() != 'Y':
       remove_sftp()
+   
+   if '{{ cookiecutter.use_cache }}'.upper() != 'Y':
+      remove_cache()
       
+   
    # 6. Execute commands
    for command in COMMANDS:
       os.system(command)

@@ -14,7 +14,9 @@ import (
 // responsible for data storage and retrieval.
 type Repository interface{}
 
-func New(ctx context.Context, cfg *config.Settings, db *sqlx.DB) (Repository, error) {
+func New(ctx context.Context, cfg *config.Settings {% if cookiecutter.use_database == 'y' %}, db *sqlx.DB{% endif %}) (Repository, error) {
+
+	{% if cookiecutter.use_database == 'y' %}
 	switch cfg.Database.Engine {
 	case "mysql":
 		return mysql.New(db), nil
@@ -23,4 +25,5 @@ func New(ctx context.Context, cfg *config.Settings, db *sqlx.DB) (Repository, er
 	default:
 		return nil, errors.ErrUnsupported
 	}
+	{% endif %}
 }
