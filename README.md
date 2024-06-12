@@ -19,13 +19,13 @@ $ brew install cookiecutter
 Finally, to run it based on this template, type:
 
 ```console
-$ cookiecutter https://github.com/sanservices/microgen --project="nanogen | microgen"
+$ cookiecutter https://github.com/sanservices/microgen --checkout v3.2.0 --directory="nanogen | microgen"
 ```
 
 or if you cloned the repository
 
 ```console
-$ cookiecutter microgen --project="nanogen | microgen"
+$ cookiecutter microgen --directory="nanogen | microgen"
 ```
 
 You will be asked about your basic info (name, project name, app name, etc.). This info will be used to customize your new project.
