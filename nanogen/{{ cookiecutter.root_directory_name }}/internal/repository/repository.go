@@ -15,7 +15,6 @@ import (
 type Repository interface{}
 
 func New(ctx context.Context, cfg *config.Settings {% if cookiecutter.use_database == 'y' %}, db *sqlx.DB{% endif %}) (Repository, error) {
-
 	{% if cookiecutter.use_database == 'y' %}
 	switch cfg.Database.Engine {
 	case "mysql":
@@ -25,5 +24,7 @@ func New(ctx context.Context, cfg *config.Settings {% if cookiecutter.use_databa
 	default:
 		return nil, errors.ErrUnsupported
 	}
+	{% else %}
+	return nil, nil
 	{% endif %}
 }

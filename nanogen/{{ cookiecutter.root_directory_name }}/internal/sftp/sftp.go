@@ -11,12 +11,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-type Connections struct {
-	sshClient  *ssh.Client
-	sftpClient *sftp.Client
-}
-
-func New(ctx context.Context, config *config.Settings) (*Connections, error) {
+func New(ctx context.Context, config *config.Settings) (*sftp.Client, *ssh.Client, error) {
 
 	apilogger.Info(ctx, apilogger.LogCatUncategorized, "Connecting to sftp server...")
 
@@ -36,7 +31,7 @@ func New(ctx context.Context, config *config.Settings) (*Connections, error) {
 	if err != nil {
 		log.Printf("Failed to connect to [%s]: %v\n", config.Sftp.Host, err)
 
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Create new SFTP client
@@ -44,15 +39,10 @@ func New(ctx context.Context, config *config.Settings) (*Connections, error) {
 	if err != nil {
 		log.Printf("Unable to start sftp subsystem: %v\n", err)
 
-		return nil, err
+		return nil, nil, err
 	}
 
 	apilogger.Info(ctx, apilogger.LogCatUncategorized, "Connected to sftp server")
 
-	conn := &Connections{
-		sshClient:  sshClient,
-		sftpClient: sftpClient,
-	}
-
-	return conn, nil
+	return sftpClient, sshClient, nil
 }

@@ -5,7 +5,7 @@ import (
 	"os"
 	{% if cookiecutter.use_cache != 'n' %}"time"{% endif %}
 
-	{% if cookiecutter.use_database != 'n' %}"github.com/sanservices/kit/database"{% endif %}
+	"github.com/sanservices/kit/database"
 	"gopkg.in/yaml.v2"
 )
 

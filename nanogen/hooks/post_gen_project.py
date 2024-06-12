@@ -19,7 +19,8 @@ def remove_database():
    """
    Removes folder needed for the database layer if it isn't going to be used
    """
-   
+   COMMANDS.append("gopls imports -w internal/repository/repository.go")
+
    shutil.rmtree(os.path.join(
       PROJECT_DIRECTORY, "internal/db"
    ))
