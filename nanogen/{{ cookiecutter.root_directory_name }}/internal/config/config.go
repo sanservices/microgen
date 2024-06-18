@@ -18,6 +18,7 @@ type Settings struct {
 	{% if cookiecutter.use_database == 'y' %}Database  database.DatabaseConfig                  `yaml:"Database"`{% endif %}
 	{% if cookiecutter.use_cache == 'y' %}Cache    CacheConfig                     `yaml:"Cache"`{% endif %}
 	{% if cookiecutter.use_sftp == 'y' %}Sftp    SftpConfig                `yaml:"Sftp"`{% endif %}
+	{% if cookiecutter.use_smtp == 'y' %}Smtp    SmtpConfig                `yaml:"Smtp"`{% endif %}
 }
 
 type Service struct {
@@ -42,6 +43,13 @@ type SftpConfig struct {
 	Password string `yaml:"password"`
 	Host string `yaml:"host"`
 	Port int `yaml:"port"`
+}
+type SmtpConfig struct { 
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	Sender   string `yaml:"sender"`
 }
 {% endif %}
 

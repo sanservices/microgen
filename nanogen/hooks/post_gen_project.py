@@ -40,6 +40,14 @@ def remove_sftp():
    shutil.rmtree(os.path.join(
       PROJECT_DIRECTORY, "internal/sftp"
    ))
+
+def remove_smtp():
+   """
+   Add kn function files
+   """
+   shutil.rmtree(os.path.join(
+      PROJECT_DIRECTORY, "internal/smtp"
+   ))
    
 def remove_cache():
    """
@@ -56,6 +64,9 @@ def main():
    if '{{ cookiecutter.use_sftp }}'.upper() != 'Y':
       remove_sftp()
    
+   if '{{ cookiecutter.use_smtp }}'.upper() != 'Y':
+      remove_smtp()
+      
    if '{{ cookiecutter.use_cache }}'.upper() != 'Y':
       remove_cache()
       
