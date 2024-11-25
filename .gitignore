@@ -1,0 +1,5 @@
+.idea/
+.vscode/
+.vim/
+.DS_store
+buf.lock

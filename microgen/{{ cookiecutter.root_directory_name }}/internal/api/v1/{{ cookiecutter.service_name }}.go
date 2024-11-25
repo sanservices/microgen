@@ -2,10 +2,11 @@ package v1
 
 import (
 	"errors"
-	"github.com/labstack/echo/v4"
-	"github.com/sanservices/apicore/helper"
 	"net/http"
 	"strconv"
+
+	"github.com/labstack/echo/v4"
+	"github.com/sanservices/apicore/helper"
 )
 
 func (h *Handler) getThing(c echo.Context) error {
