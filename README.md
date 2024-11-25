@@ -14,12 +14,30 @@ Alternatively, you can install `cookiecutter` with homebrew:
 $ brew install cookiecutter
 ```
 
+# ***Requirements***
+
+
+**Before even beginning to use the template you must install the following tools:**
+
+
+# Protobuffers
+- [protobuf](https://protobuf.dev/getting-started/gotutorial/)
+   ``` 
+      brew install protobuf
+   ```
+- [buf](https://github.com/bufbuild/buf) ***protobuf manager***
+   ``` 
+      brew install buf
+   ```
+
+
+
 ## Run
 
 Finally, to run it based on this template, type:
 
 ```console
-$ cookiecutter https://github.com/sanservices/microgen --checkout v3.2.0 --directory="nanogen | microgen"
+$ cookiecutter https://github.com/sanservices/microgen --checkout v3.4.0 --directory="microgrpcgen"
 ```
 
 or if you cloned the repository
