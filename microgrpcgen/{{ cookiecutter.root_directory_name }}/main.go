@@ -132,7 +132,7 @@ func setupGrpcGatewayHandler(config *config.Settings) http.Handler {
 	ctx := context.Background()
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	address := fmt.Sprintf("localhost:%d", config.Service.Port)
+	address := fmt.Sprintf("localhost:%s", config.GRPC.Port)
 	err := pb.RegisterUserHandlerFromEndpoint(ctx, mux, address, opts)
 	if err != nil {
 		log.Errorf(ctx, log.LogCatUncategorized, "failed to register gRPC-Gateway: %v", err)
@@ -145,7 +145,7 @@ func StartGRPCServer(config *config.Settings, handler *handler.Handler) error {
 
 	ctx := context.Background()
 	log.Infof(ctx, log.LogCatUncategorized, "initiating rpc server on port:%s", config.GRPC.Port)
-	address := fmt.Sprintf("localhost:%d", config.Service.Port)
+	address := fmt.Sprintf("localhost:%s", config.GRPC.Port)
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Error(ctx, log.LogCatUncategorized, err)
