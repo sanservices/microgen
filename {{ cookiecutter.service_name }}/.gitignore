@@ -1,5 +1,0 @@
-.vscode/
-.idea/
-.DS_store
-.env
-{{ cookiecutter.service_name }}

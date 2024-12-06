@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package {{ cookiecutter.module_name }};
+import "google/api/annotations.proto";
+
+option go_package = "{{ cookiecutter.module_name }}-proto/pb";
+
+// Define the service
+service User {
+    rpc GetUser(GetUserRequest) returns (GetUserResponse) {  
+        option (google.api.http) = {
+        get: "/v1/user/{UserID}"
+      };
+    }
+}
+
+message GetUserRequest {
+    uint32 UserID = 1;
+}
+
+message GetUserResponse {
+    uint32 UserID = 1;
+    string FirstName = 2;
+    string LastName = 3;
+    uint32 Age = 4;
+    string Email = 5;
+}
