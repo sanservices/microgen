@@ -30,6 +30,12 @@ $ brew install cookiecutter
       brew install buf
    ```
 
+## Swagger generation
+Install the following to generate swagger.
+   ``` 
+      go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
+   ```
+
 
 
 ## Run
