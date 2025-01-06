@@ -1,0 +1,8 @@
+{
+  "root_directory_name": "root_directory_name",
+  "handler": "handler_name",
+  "use_database": "y/n",
+  "use_cache": "y/n",
+  "use_smtp": "y/n",
+  "use_sftp": "y/n"
+}
