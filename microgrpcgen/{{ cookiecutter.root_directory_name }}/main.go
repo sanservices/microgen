@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"{{ cookiecutter.module_name }}/internal/{{ cookiecutter.module_name }}-proto/pb"
+	"google.golang.org/grpc/reflection"
 	config "{{ cookiecutter.module_name }}/config"
 	api "{{ cookiecutter.module_name }}/internal/api"
 	handler "{{ cookiecutter.module_name }}/internal/api/v1"
@@ -132,7 +133,7 @@ func setupGrpcGatewayHandler(config *config.Settings) http.Handler {
 	ctx := context.Background()
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	address := fmt.Sprintf("localhost:%s", config.GRPC.Port)
+	address := fmt.Sprintf("0.0.0.0:%s", config.GRPC.Port)
 	err := pb.RegisterUserHandlerFromEndpoint(ctx, mux, address, opts)
 	if err != nil {
 		log.Errorf(ctx, log.LogCatUncategorized, "failed to register gRPC-Gateway: %v", err)
@@ -145,7 +146,7 @@ func StartGRPCServer(config *config.Settings, handler *handler.Handler) error {
 
 	ctx := context.Background()
 	log.Infof(ctx, log.LogCatUncategorized, "initiating rpc server on port:%s", config.GRPC.Port)
-	address := fmt.Sprintf("localhost:%s", config.GRPC.Port)
+	address := fmt.Sprintf("0.0.0.0:%s", config.GRPC.Port)
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Error(ctx, log.LogCatUncategorized, err)
@@ -153,6 +154,7 @@ func StartGRPCServer(config *config.Settings, handler *handler.Handler) error {
 	}
 
 	grpcServer := grpc.NewServer()
+	reflection.Register(grpcServer)
 	pb.RegisterUserServer(grpcServer, handler)
 	go func() {
 		if err := grpcServer.Serve(listener); err != nil {
