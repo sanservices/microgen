@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	fPath = "settings.yml"
+	// defaultSettingsPath is used when the SETTINGS_PATH env var is not set.
+	defaultSettingsPath = "settings.yml"
 )
 
 type Settings struct {
@@ -57,8 +58,13 @@ type Cache struct {
 func New(ctx context.Context) (*Settings, error) {
 	settings := &Settings{}
 
-	//Read settings file
-	cf, err := os.ReadFile(fPath)
+	// Read settings file (path overridable via the SETTINGS_PATH env var)
+	path := os.Getenv("SETTINGS_PATH")
+	if path == "" {
+		path = defaultSettingsPath
+	}
+
+	cf, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

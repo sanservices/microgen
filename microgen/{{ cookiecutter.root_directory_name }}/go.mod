@@ -34,4 +34,3 @@ require (
 	gopkg.in/go-playground/validator.v9 v9.31.0 // indirect
 )
 
-replace github.com/swaggo/files/v2 => github.com/sanservices/swaggo-files/v2 v2.0.2

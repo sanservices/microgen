@@ -90,118 +90,93 @@ complicated. If you're using VSCode for development, you can find information on
 
 ### Non-Docker setup
 
-The non-docker method of compiling and running this project involves having to run a few commands to test/compile the
-code as well as generate swagger documentation. Usually you would have to run these commands sequentially in your
-terminal, but we've built in a shortcut with the help of a tool called `modd`.
-
-Not only does modd save us from having to constantly enter a handful of commands every time we'd like to re-compile and
-run our project, it also serves as a hot reloader. So (in most cases) it will re-compile and serve your code changes on
-the fly, without you having to stop and start things up again.
-
-If you feel the project compilation and startup could use some tweaking, you would need to make those changes
-in `${projectRoot}/modd.conf`. Just make sure that, if ever you have to do this, you __make those same changes to the
-Dockerfile__ also, or what you have in development won't match the other dockerised environments (test/staging/prod).
+The project ships with a `Makefile` and a `settings.yml` pre-filled with sensible
+local defaults. Make sure the protobuf toolchain (`protobuf` + `buf`) is installed
+(see the requirements above) before generating code.
 
 #### Setup steps:
 
-1. Install modd: https://github.com/cortesi/modd.git
-2. Install go-statik: https://github.com/rakyll/statik.git
-3. Install go-swagger: https://github.com/go-swagger/go-swagger.git
-4. In `${projectRoot}/settings`, create a `settings.yml` and `settings_test.yml`, both containing the following:
+1. Review `settings.yml` and adjust it for your environment (REST/gRPC{% if cookiecutter.use_mcp == 'y' %}/MCP{% endif %} ports,
+   database, cache, ...). The config file path can be overridden at runtime with the
+   `SETTINGS_PATH` environment variable.
+
+2. (Re)generate the protobuf / gRPC / gateway / OpenAPI code whenever you change a
+   `.proto` file:
 
    ```
-   service:
-   name: "{{ cookiecutter.module_name }}"
-   path_prefix: ""
-   version: "1"
-   debug: true
-   port: 8080
-   cache:
-   enabled: true
-   username: ""
-   password: ""
-   host: "localhost"
-   port: 6379
-   database:
-   engine: "inmemory"
-   host: ""
-   name: ""
-   port: 3306
-   user: ""
-   password: ""
-   ```
-5. Run the app by simply running the command:
-
-   ```
-   modd
+   make generate
    ```
 
-   To run the app without modd pre-compiling and hot reloading, run:
+3. Use the `Makefile` for the common tasks (run `make help` to list them all):
 
    ```
-   go run main.go
+   make run     # run the service locally (go run .)
+   make build   # build the binary
+   make test    # run the test suite
+   make lint    # run golangci-lint
+   make tidy    # sync go.mod / go.sum with the source
    ```
 
-   To generate swagger docs without modd or docker:
+   Or run it directly without make:
 
    ```
-   swagger generate spec -w ./internal/api/v1 -o ./files/swaggerui/v1/swagger.yml --scan-models
-   statik -dest internal/api/v1/docs -p swagger -src=./files/swaggerui/v1 -f
+   go run .
    ```
-6. Try out some of the test endpoints
 
-   Download an API client like Postman (https://www.postman.com/downloads/) to be able to test the project API.
-
-   Try the health check endpoint (GET localhost:8080/healthcheck).
+4. Try out the endpoints. The service exposes a health check at
+   `GET localhost:8080/healthcheck` and gRPC on port `50051`{% if cookiecutter.use_mcp == 'y' %}, plus the MCP server on
+   port `8081`{% endif %}. Use an API client such as
+   [Postman](https://www.postman.com/downloads/) to exercise the rest of the API.
 
 ## Project architecture
 
-`/settings`
+`settings.yml`
 
-*️ This is where everything related to project configuration and settings is kept. Settings can be read from yaml files
-and can be stored in the same package.
+*️ Service configuration (REST + gRPC{% if cookiecutter.use_mcp == 'y' %} + MCP{% endif %}), read at startup and mapped onto typed structs by the `config`
+package. The file path can be overridden with the `SETTINGS_PATH` environment variable.
 
-`/files`
+`buf.yaml` / `buf.gen.yaml`
 
-*️ Files holds all static files to be served. This includes the generated swagger documentation.
+*️ Buf configuration driving protobuf, gRPC, grpc-gateway and OpenAPI code generation (`make generate`).
+
+`/internal/api/proto`
+
+*️ The `.proto` service/message definitions — the single source of truth for the gRPC and REST (gateway) surfaces.
 
 `/internal`
 
-*️ This is the main package of our project where everything specifically related to its domain and functionality lives.
+*️ The main package of the project, where everything specific to its domain and functionality lives.
 
 `/internal/api`
 
-*️ This package contains everything related to the service api - router, routes, handlers, middleware(filters) etc.
+*️ Everything related to the service API — router, routes, handlers, middleware (filters), etc.
+
+`/internal/api/v1/swagger`
+
+*️ The embedded swagger UI assets, served by the docs handler via `//go:embed`.
 
 {% if cookiecutter.use_mcp == 'y' %}
 `/internal/mcp`
 
-*️ This package exposes the service over the Model Context Protocol. `mcp.go` builds the MCP server and serves it over Streamable HTTP; `tools.go` registers each service operation as an MCP tool. Tool handlers delegate to the same `service` layer used by the gRPC/REST handlers, so behaviour stays consistent. Add new tools in `registerTools`.
+*️ Exposes the service over the Model Context Protocol. `mcp.go` builds the MCP server and serves it over Streamable HTTP; `tools.go` registers each service operation as an MCP tool. Tool handlers delegate to the same `service` layer used by the gRPC/REST handlers, so behaviour stays consistent. Add new tools in `registerTools`.
 {% endif %}
 
-`/internal/api/${versionNumber}/swagger`
+`/internal/{{ cookiecutter.service_name }}`
 
-*️ Holds generated go-statik file (the swagger docs binary that is generated - no need to touch this file ever).
+*️ All business logic and data-repository interaction for the {{ cookiecutter.service_name }} domain.
 
-`/internal/{{ cookiecutter.module_name }}`
+`/internal/{{ cookiecutter.service_name }}/entity`
 
-*️ This package contains all business logic and data repository interaction for {{ cookiecutter.module_name }} domain.
+*️ Structs matching the raw data fetched from each repository, before it is transformed/enriched in the API layer.
 
-`/internal/{{ cookiecutter.module_name }}/entity`
+`/internal/{{ cookiecutter.service_name }}/{{ cookiecutter.service_name }}.go`
 
-*️ This package contains structs matching the raw data fetched from each repository. This data will then might be
-transformed and enriched in the api layer before it is emitted.
+*️ The domain contract — the `Service`, `Repository` (and optional `Cache`) interfaces implemented by the packages within.
 
-`/internal/{{ cookiecutter.module_name }}/{{ cookiecutter.module_name }}.go`
+`/internal/{{ cookiecutter.service_name }}/repository`
 
-*️ This file serves as the contract (interface) for functionality in the packages within, namely repository and service.
+*️ Implementations of the `Repository` interface, one sub-package per backend (mysql/oracle/sqlite/redis).
 
-`/internal/{{ cookiecutter.module_name }}/repository`
+`/internal/{{ cookiecutter.service_name }}/service`
 
-*️ This package contains all implementations of the `Repository` interface declared
-in `/internal/{{ cookiecutter.module_name }}/{{ cookiecutter.module_name }}.go`.
-
-`/internal/{{ cookiecutter.module_name }}/service`
-
-*️ This package contains all business logic. It is responsible for data transformation/enrichment and choosing where to
-fetch necessary data from
+*️ The business logic: responsible for data transformation/enrichment and choosing where to fetch data from.

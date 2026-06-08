@@ -1,37 +1,38 @@
 Service:
   name: {{ cookiecutter.root_directory_name }}
-  version:
+  version: "1.0.0"
   port: 8080
-{% if cookiecutter.use_database == 'y' %}  
+{% if cookiecutter.use_database == 'y' %}
 Database:
-  user:
-  password:
-  host:
-  port:
-  name:
+  engine: mysql
+  user: root
+  password: ""
+  host: localhost
+  port: 3306
+  name: {{ cookiecutter.service_name }}
 {% endif %}
 {% if cookiecutter.use_cache == 'y' %}
 Cache:
-  enabled:
-  expiration_minutes:
-  purge_minutes:
+  enabled: true
+  expiration_minutes: 5
+  purge_minutes: 10
   Redis:
-    addr:
-    password:
-    db:
+    addr: localhost:6379
+    password: ""
+    db: 0
 {% endif %}
 {% if cookiecutter.use_kafka == 'y' %}
 Kafka:
-  enabled:
-  version:
-  consume_only:
-  consumer_group_id:
-  schema_registration:
-  brokers:
+  enabled: false
+  version: "2.8.0"
+  consume_only: false
+  consumer_group_id: {{ cookiecutter.root_directory_name }}
+  schema_registration: ""
+  brokers: localhost:9092
   TLS:
-    ca_cert_pem:
-    cert_pem:
-    key_pem:
-    skip_verify:
-    timeout_secs:
+    ca_cert_pem: ""
+    cert_pem: ""
+    key_pem: ""
+    skip_verify: true
+    timeout_secs: 10
 {% endif %}
