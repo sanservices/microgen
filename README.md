@@ -49,7 +49,14 @@ $ cookiecutter https://github.com/sanservices/microgen --checkout v3.4.0 --direc
 or if you cloned the repository
 
 ```console
-$ cookiecutter microgen --directory="nanogen | microgen"
+$ cookiecutter microgen --directory="nanogen | microgen | microgrpcgen | micromcpgen"
 ```
+
+The available generators are:
+
+- `microgen` — REST microservice (Echo + uber/fx)
+- `microgrpcgen` — gRPC + REST (grpc-gateway) microservice
+- `micromcpgen` — gRPC + REST + MCP in a single module (based on `microgrpcgen`)
+- `nanogen` — Knative serverless function
 
 You will be asked about your basic info (name, project name, app name, etc.). This info will be used to customize your new project.

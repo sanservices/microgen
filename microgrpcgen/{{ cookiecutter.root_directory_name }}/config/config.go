@@ -6,7 +6,7 @@ import (
 
 	{% if cookiecutter.use_cache == 'y' %}"time"{% endif %}
 
-	{% if cookiecutter.use_database != 'n' %}"github.com/sanservices/kit/database"{% elif cookiecutter.use_cache != 'n' %}"github.com/sanservices/kit/database"{% endif %}
+	{% if cookiecutter.use_database == 'y' or cookiecutter.use_cache == 'y' %}"github.com/sanservices/kit/database"{% endif %}
 	{% if cookiecutter.use_kafka == 'y' %}"github.com/sanservices/kit/kafkalistener"{% endif %}
 	"gopkg.in/yaml.v2"
 )

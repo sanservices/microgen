@@ -21,8 +21,8 @@ import (
 	repository "{{ cookiecutter.module_name }}/internal/{{ cookiecutter.service_name }}/repository"
 	{% if cookiecutter.use_cache == 'y' %}redis "{{ cookiecutter.module_name }}/internal/{{ cookiecutter.service_name }}/repository/redis"{% endif %}
 	service "{{ cookiecutter.module_name }}/internal/{{ cookiecutter.service_name }}/service"
+	{% if cookiecutter.use_cache == 'y' %}{{ cookiecutter.service_name }} "{{ cookiecutter.module_name }}/internal/{{ cookiecutter.service_name }}"{% endif %}
 	"github.com/labstack/echo/v4"
-	log "github.com/sanservices/apilogger/v2"
 	echoMW "github.com/labstack/echo/v4/middleware"
 	apicoreMW "github.com/sanservices/apicore/middleware"
 	log "github.com/sanservices/apilogger/v2"
@@ -35,37 +35,40 @@ func main() {
 			// Initialize context
 			context.Background,
 			
-			// Intialize log
+			// Initialize log
 			log.New,
 			
-			// Intialize service configuration
+			// Initialize service configuration
 			config.New,
 			
 			{% if cookiecutter.use_database == 'y' %}
-			// Intialize database connection
+			// Initialize database connection
 			db.New,
 			{% endif %}
 
 			{% if cookiecutter.use_cache == 'y' %}
-			// Initialize redis connection
-			redis.New,
+			// Initialize redis connection (exposed as the {{ cookiecutter.service_name }}.Cache interface so fx can inject it)
+			fx.Annotate(
+				redis.New,
+				fx.As(new({{ cookiecutter.service_name }}.Cache)),
+			),
 			{% endif %}
 
-			// Intialize repository layer for databases transactions
+			// Initialize repository layer for databases transactions
 			repository.New,
 
-			// Intialize service layer for buisness logic
+			// Initialize service layer for business logic
 			service.New,
 
 			{% if cookiecutter.use_kafka == 'y' %}
 			//Initialize kafka's message broker
 			kafkalistener.New,
 			
-			// Initialize kafka implemetation
+			// Initialize kafka implementation
 			kafka.New,
 			{% endif %}
 
-			// Intialize api server
+			// Initialize api server
 			api.New,
 			handler.New,
 			healthcheck.New,

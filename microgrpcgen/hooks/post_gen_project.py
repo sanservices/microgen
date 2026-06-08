@@ -6,80 +6,63 @@ import yaml
 # Get the root project directory
 PROJECT_DIRECTORY = os.path.realpath(os.path.curdir)
 
+# Commands executed (in order) once the project tree has been pruned.
 COMMANDS = [
-   # 1. Go get swaggo
-   "echo Running go get swaggo...",
+   # 1. Install the protobuf / gRPC / gateway / OpenAPI code generators
+   "echo Installing protobuf code generators...",
    "go install github.com/swaggo/swag/cmd/swag@latest",
    "go install google.golang.org/protobuf/cmd/protoc-gen-go@latest",
    "go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest",
-   # 2. Make sure that the go.mod file matches the source code in the module
-   "&& echo Running go mod tidy...",
+   "go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest",
+   "go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest",
+
+   # 2. Generate protobuf, gRPC, gateway and OpenAPI code.
+   #    Run before `go mod tidy` so the generated imports can be resolved.
+   "echo Generating protobuf code...",
+   "buf dep update",
+   "buf generate",
+
+   # 3. Make sure that the go.mod file matches the source code in the module
+   "echo Running go mod tidy...",
    "go mod tidy -v",
 
-   # 3. Is used to format Go source code according to the official Go formatting guidelines.
-   "&& echo Running go fmt...",
+   # 4. Format Go source code according to the official Go formatting guidelines
+   "echo Running go fmt...",
    "gofmt -l -s -w .",
-
-   #4. protobuf generation
-   "buf dep update",
-   "buf generate"
-
-
 ]
 
+
+def remove_dirs_named(names):
+   """Recursively delete every directory whose name is in `names`."""
+   for dirpath, dirnames, _ in os.walk(PROJECT_DIRECTORY):
+      for name in list(dirnames):
+         if name in names:
+            shutil.rmtree(os.path.join(dirpath, name))
+            dirnames.remove(name)  # don't descend into the deleted directory
+
+
 def remove_database():
-   """
-   Removes folder needed for the database layer if it isn't going to be used
-   """
-   
-   shutil.rmtree(os.path.join(
-      PROJECT_DIRECTORY, "db"
-   ))
+   """Removes the database layer (connection + concrete repositories) if unused."""
+   shutil.rmtree(os.path.join(PROJECT_DIRECTORY, "db"))
+   remove_dirs_named(("mysql", "oracle", "sqlite"))
+
 
 def remove_cache():
-   """
-   Removes folder needed for redis cache if it isn't going to be used
-   """
+   """Removes the redis cache implementation if it isn't going to be used."""
+   remove_dirs_named(("redis",))
 
-   # Define the directory name you want to search for
-   target_dir = "redis"
-
-   # Initialize an empty list to store the paths of matching directories
-   found_dirs = []
-
-   # Walk through the directory tree starting from the root_dir
-   for dirpath, dirnames, filenames in os.walk(PROJECT_DIRECTORY):
-       if target_dir in dirnames:
-           found_dirs.append(os.path.join(dirpath, target_dir))
-           shutil.rmtree(os.path.join(
-               dirpath, target_dir
-            ))
-
-   # Print the paths of found directories
-   for found_dir in found_dirs:
-    print("Found directory:", found_dir)
 
 def remove_kafka():
-   """
-   Removes folder needed for kafka if it isn't going to be used
-   """
-   
-   shutil.rmtree(os.path.join(
-      PROJECT_DIRECTORY, "internal/kafka"
-   ))
+   """Removes the kafka implementation if it isn't going to be used."""
+   shutil.rmtree(os.path.join(PROJECT_DIRECTORY, "internal/kafka"))
 
 
 def prettify_config():
-   """
-   Prettify yml config file to a standard format
-   """
-
-   # Read the YAML file
-   with open('config.yml', 'r') as file:
+   """Prettify the settings.yml config file to a standard format."""
+   with open("settings.yml", "r") as file:
       data = yaml.safe_load(file)
 
-   # Write the YAML file with prettified formatting
-   with open('config.yml', 'w') as file:
+   with open("settings.yml", "w") as file:
       yaml.dump(data, file, sort_keys=False, indent=2)
 
 
@@ -96,12 +79,13 @@ def main():
    if '{{ cookiecutter.use_kafka }}'.upper() != 'Y':
       remove_kafka()
 
-   # 4. Prettify config.yml file
+   # 4. Prettify the settings.yml file
    prettify_config()
 
-   # 4. Execute commands
+   # 5. Execute commands
    for command in COMMANDS:
       os.system(command)
+
 
 if __name__ == "__main__":
    main()

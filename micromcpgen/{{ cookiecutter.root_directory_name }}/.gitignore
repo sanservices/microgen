@@ -1,0 +1,5 @@
+.vscode/
+.idea/
+.DS_store
+.env
+{{ cookiecutter.root_directory_name }}

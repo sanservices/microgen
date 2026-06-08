@@ -1,6 +1,6 @@
 # Service gRPC-Gateway
 
-New services should use gRPC for inter-service communication, by defining protobufs it defines the structures used by gRPC, this can also be reutilized for REST, by "translating" protobuf into json, [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) provides this funcitonality, the following diagram represents what grpc-gateway performs.
+New services should use gRPC for inter-service communication, by defining protobufs it defines the structures used by gRPC, this can also be reutilized for REST, by "translating" protobuf into json, [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) provides this functionality, the following diagram represents what grpc-gateway performs.
 
 ```mermaid
 graph TD
@@ -82,7 +82,7 @@ the fly, without you having to stop and start things up again.
 
 If you feel the project compilation and startup could use some tweaking, you would need to make those changes
 in `${projectRoot}/modd.conf`. Just make sure that, if ever you have to do this, you __make those same changes to the
-Dockerfile__ also, or what you have in developement won't match the other dockerised environments (test/staging/prod).
+Dockerfile__ also, or what you have in development won't match the other dockerised environments (test/staging/prod).
 
 #### Setup steps:
 

@@ -52,7 +52,7 @@ func (c *Cache) Set(ctx context.Context, key string, v interface{}) error {
 	return c.client.Set(ctx, key, bytes, c.expTime).Err()
 }
 
-// Get retreives the value of the given key, if it doesn't find it will return redis: nil
+// Get retrieves the value of the given key, if it doesn't find it will return redis: nil
 func (c *Cache) Get(ctx context.Context, key string, v interface{}) error {
 	if !c.enabled {
 		return ErrCacheDisabled

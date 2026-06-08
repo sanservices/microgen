@@ -1,0 +1,6 @@
+# buf.gen.yaml
+version: v2
+name: buf.build/{{ cookiecutter.module_name }}/proto
+deps:
+  - buf.build/googleapis/googleapis
+  - buf.build/grpc-ecosystem/grpc-gateway

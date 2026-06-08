@@ -43,7 +43,7 @@ the fly, without you having to stop and start things up again.
 
 If you feel the project compilation and startup could use some tweaking, you would need to make those changes
 in `${projectRoot}/modd.conf`. Just make sure that, if ever you have to do this, you __make those same changes to the
-Dockerfile__ also, or what you have in developement won't match the other dockerised environments (test/staging/prod).
+Dockerfile__ also, or what you have in development won't match the other dockerised environments (test/staging/prod).
 
 #### Setup steps:
 
