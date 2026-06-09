@@ -6,12 +6,16 @@ import (
 
 	"github.com/labstack/echo/v4"
 	echoMW "github.com/labstack/echo/v4/middleware"
+	ddecho "gopkg.in/DataDog/dd-trace-go.v1/contrib/labstack/echo.v4"
 	apicoreMW "github.com/sanservices/apicore/middleware"
 	logger "github.com/sanservices/apilogger/v2"
 )
 
 // RegisterRoutes iterates over handlers and registers them in given echo server instance
 func RegisterRoutes(e *echo.Echo, handlers []Handler) {
+	// Datadog APM tracing for all incoming HTTP requests
+	e.Use(ddecho.Middleware())
+
 	e.Use(apicoreMW.SetCustomHeaders)
 	e.Use(apicoreMW.EnrichContext)
 	e.Use(apicoreMW.RequestLogger)

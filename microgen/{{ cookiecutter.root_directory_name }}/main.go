@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"os"
 
 	{% if cookiecutter.use_database == 'y' %}db "{{ cookiecutter.module_name }}/db"{% endif %}
 	{% if cookiecutter.use_database == 'y' %}"github.com/jmoiron/sqlx"{% endif %}
@@ -18,6 +20,7 @@ import (
 	service "{{ cookiecutter.module_name }}/internal/{{ cookiecutter.service_name }}/service"
 	"github.com/labstack/echo/v4"
 	log "github.com/sanservices/apilogger/v2"
+	ddtracer "gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 
 	"go.uber.org/fx"
 )
@@ -86,27 +89,38 @@ func main() {
 			func(lc fx.Lifecycle, ctx context.Context, config *config.Settings, e *echo.Echo, {% if cookiecutter.use_database == 'y' %}db *sqlx.DB,{% endif %} {% if cookiecutter.use_kafka == 'y' %}k *kafka.Kafka{% endif %}) {
 				lc.Append(fx.Hook{
 					OnStart: func(ctx context.Context) error {
+						// Start the Datadog tracer with basic service info. The agent
+						// address and other options come from the standard DD_* env vars.
+						ddtracer.Start(
+							ddtracer.WithService(config.Service.Name),
+							ddtracer.WithServiceVersion(config.Service.Version),
+							ddtracer.WithEnv(os.Getenv("DD_ENV")),
+						)
+
 						go startRestAPI(ctx, config, e)
 						{%- if cookiecutter.use_kafka == 'y' %}
 						go k.StartListener(ctx)
 						{% endif %}
-						
+
 						return nil
 					},
 
 					OnStop: func(ctx context.Context) error {
 						{%- if cookiecutter.use_database == 'y' %}
-						log.Info(ctx, log.LogCatDatastoreClose, "Closing database...")
+						log.Info(ctx, log.LogCatDatastoreClose, "closing database...")
 						if err := db.Close(); err != nil {
-							log.Error(ctx, log.LogCatDatastoreClose, "Error closing database")
+							log.Errorf(ctx, log.LogCatDatastoreClose, "error closing database: %v", err)
 							return err
 						}
 						{% endif %}
-						log.Info(ctx, log.LogCatUncategorized, "Server is shutting down...")
+						log.Info(ctx, log.LogCatUncategorized, "server is shutting down...")
 						if err := e.Shutdown(ctx); err != nil {
-							log.Error(ctx, log.LogCatUncategorized, "Error shutting down server")
+							log.Errorf(ctx, log.LogCatUncategorized, "error shutting down server: %v", err)
 							return err
 						}
+
+						// Flush and stop the Datadog tracer.
+						ddtracer.Stop()
 
 						return nil
 					},
@@ -120,7 +134,10 @@ func main() {
 func startRestAPI(ctx context.Context, config *config.Settings, e *echo.Echo) {
 	address := fmt.Sprintf(":%d", config.Service.Port)
 
-	log.Infof(ctx, log.LogCatUncategorized, "See swagger at http://localhost:%d/v1/docs", config.Service.Port)
+	log.Infof(ctx, log.LogCatStartUp, "starting REST API on port %d (swagger at http://localhost:%d/v1/docs)", config.Service.Port, config.Service.Port)
 
-	e.Logger.Fatal(e.Start(address))
+	// http.ErrServerClosed is returned on a graceful shutdown and is expected.
+	if err := e.Start(address); err != nil && err != http.ErrServerClosed {
+		log.Errorf(ctx, log.LogCatUncategorized, "REST API server failed: %v", err)
+	}
 }

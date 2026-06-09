@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	{% if cookiecutter.use_database == 'y' %}db "{{ cookiecutter.module_name }}/db"{% endif %}
 	{% if cookiecutter.use_database == 'y' %}"github.com/jmoiron/sqlx"{% endif %}
 	{% if cookiecutter.use_kafka == 'y' %}kafka "{{ cookiecutter.module_name }}/internal/kafka"{% endif %}
@@ -24,9 +25,8 @@ import (
 	{% if cookiecutter.use_cache == 'y' %}{{ cookiecutter.service_name }} "{{ cookiecutter.module_name }}/internal/{{ cookiecutter.service_name }}"{% endif %}
 	{% if cookiecutter.use_mcp == 'y' %}mcpserver "{{ cookiecutter.module_name }}/internal/mcp"{% endif %}
 	"github.com/labstack/echo/v4"
-	echoMW "github.com/labstack/echo/v4/middleware"
-	apicoreMW "github.com/sanservices/apicore/middleware"
 	log "github.com/sanservices/apilogger/v2"
+	ddtracer "gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 	"go.uber.org/fx"
 )
 
@@ -74,6 +74,16 @@ func main() {
 			handler.New,
 			healthcheck.New,
 
+			// Assemble the echo handlers (healthcheck + swagger docs). handler.New
+			// is reused here and for the gRPC server, so the same instance serves
+			// both surfaces.
+			func(h *handler.Handler, hc *healthcheck.Healthcheck) []api.Handler {
+				return []api.Handler{
+					hc,
+					h,
+				}
+			},
+
 			{% if cookiecutter.use_mcp == 'y' %}
 			// Initialize MCP server (exposes the service as MCP tools)
 			mcpserver.New,
@@ -86,13 +96,27 @@ func main() {
 				l.Info(ctx, log.LogCatStartUp, "Initializing {{ cookiecutter.root_directory_name }} service")
 			},
 
+			// Apply middleware and register the echo handlers (healthcheck + swagger docs)
+			api.RegisterRoutes,
 
 			// Adds the OnStart & OnStop callbacks
-			func(lc fx.Lifecycle, ctx context.Context, config *config.Settings, handler *handler.Handler, e *echo.Echo, healthcheck *healthcheck.Healthcheck, {% if cookiecutter.use_mcp == 'y' %}m *mcpserver.MCP, {% endif %}{% if cookiecutter.use_database == 'y' %}db *sqlx.DB,{% endif %} {% if cookiecutter.use_kafka == 'y' %}k *kafka.Kafka{% endif %}) {
+			func(lc fx.Lifecycle, ctx context.Context, config *config.Settings, handler *handler.Handler, e *echo.Echo, {% if cookiecutter.use_mcp == 'y' %}m *mcpserver.MCP, {% endif %}{% if cookiecutter.use_database == 'y' %}db *sqlx.DB,{% endif %} {% if cookiecutter.use_kafka == 'y' %}k *kafka.Kafka{% endif %}) {
 				lc.Append(fx.Hook{
 					OnStart: func(ctx context.Context) error {
-						go StartGRPCServer(config, handler)
-						go startRestAPI(ctx, config, e, healthcheck)
+						// Start the Datadog tracer with basic service info. The agent
+						// address and other options come from the standard DD_* env vars.
+						ddtracer.Start(
+							ddtracer.WithService(config.Service.Name),
+							ddtracer.WithServiceVersion(config.Service.Version),
+							ddtracer.WithEnv(os.Getenv("DD_ENV")),
+						)
+
+						// Start the gRPC server synchronously so a bind failure aborts startup.
+						if err := StartGRPCServer(ctx, config, handler); err != nil {
+							return err
+						}
+
+						go startRestAPI(ctx, config, e)
 						{%- if cookiecutter.use_mcp == 'y' %}
 						go m.StartServer(ctx)
 						{% endif %}
@@ -105,17 +129,20 @@ func main() {
 
 					OnStop: func(ctx context.Context) error {
 						{%- if cookiecutter.use_database == 'y' %}
-						log.Info(ctx, log.LogCatDatastoreClose, "Closing database...")
+						log.Info(ctx, log.LogCatDatastoreClose, "closing database...")
 						if err := db.Close(); err != nil {
-							log.Error(ctx, log.LogCatDatastoreClose, "Error closing database")
+							log.Errorf(ctx, log.LogCatDatastoreClose, "error closing database: %v", err)
 							return err
 						}
 						{% endif %}
-						log.Info(ctx, log.LogCatUncategorized, "Server is shutting down...")
+						log.Info(ctx, log.LogCatUncategorized, "server is shutting down...")
 						if err := e.Shutdown(ctx); err != nil {
-							log.Error(ctx, log.LogCatUncategorized, "Error shutting down server")
+							log.Errorf(ctx, log.LogCatUncategorized, "error shutting down server: %v", err)
 							return err
 						}
+
+						// Flush and stop the Datadog tracer.
+						ddtracer.Stop()
 
 						return nil
 					},
@@ -126,23 +153,23 @@ func main() {
 	app.Run()
 }
 
-func startRestAPI(ctx context.Context, config *config.Settings, e *echo.Echo, healthcheck *healthcheck.Healthcheck) {
+func startRestAPI(ctx context.Context, config *config.Settings, e *echo.Echo) {
 
-	healthcheck.RegisterRoutes(e.Group(""))
-	e.Use(apicoreMW.SetCustomHeaders)
-	e.Use(apicoreMW.EnrichContext)
-	e.Use(apicoreMW.RequestLogger)
-	e.Use(echoMW.Recover())
-	e.Any("/*", echo.WrapHandler(setupGrpcGatewayHandler(config)))
+	// gRPC-gateway catch-all. The static routes registered by api.RegisterRoutes
+	// (healthcheck, /v1/docs) take precedence over this in echo's router.
+	e.Any("/*", echo.WrapHandler(setupGrpcGatewayHandler(ctx, config)))
+
 	address := fmt.Sprintf(":%d", config.Service.Port)
-	log.Infof(ctx, log.LogCatUncategorized, "See swagger at http://localhost:%d/v1/docs", config.Service.Port)
+	log.Infof(ctx, log.LogCatStartUp, "starting REST API on port %d (swagger at http://localhost:%d/v1/docs)", config.Service.Port, config.Service.Port)
 
-	e.Logger.Fatal(e.Start(address))
+	// http.ErrServerClosed is returned on a graceful shutdown and is expected.
+	if err := e.Start(address); err != nil && err != http.ErrServerClosed {
+		log.Errorf(ctx, log.LogCatUncategorized, "REST API server failed: %v", err)
+	}
 }
 
-func setupGrpcGatewayHandler(config *config.Settings) http.Handler {
+func setupGrpcGatewayHandler(ctx context.Context, config *config.Settings) http.Handler {
 
-	ctx := context.Background()
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	address := fmt.Sprintf("0.0.0.0:%s", config.GRPC.Port)
@@ -154,24 +181,25 @@ func setupGrpcGatewayHandler(config *config.Settings) http.Handler {
 	return mux
 }
 
-func StartGRPCServer(config *config.Settings, handler *handler.Handler) error {
+func StartGRPCServer(ctx context.Context, config *config.Settings, handler *handler.Handler) error {
 
-	ctx := context.Background()
-	log.Infof(ctx, log.LogCatUncategorized, "initiating rpc server on port:%s", config.GRPC.Port)
+	log.Infof(ctx, log.LogCatStartUp, "starting gRPC server on port %s", config.GRPC.Port)
 	address := fmt.Sprintf("0.0.0.0:%s", config.GRPC.Port)
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
-		log.Error(ctx, log.LogCatUncategorized, err)
+		log.Errorf(ctx, log.LogCatStartUp, "failed to listen on %s: %v", address, err)
 		return err
 	}
 
 	grpcServer := grpc.NewServer()
 	reflection.Register(grpcServer)
 	pb.RegisterUserServer(grpcServer, handler)
+
 	go func() {
 		if err := grpcServer.Serve(listener); err != nil {
-			log.Error(ctx, log.LogCatUncategorized, fmt.Sprintf("gRPC server failed: %v", err))
+			log.Errorf(ctx, log.LogCatUncategorized, "gRPC server failed: %v", err)
 		}
 	}()
+
 	return nil
 }

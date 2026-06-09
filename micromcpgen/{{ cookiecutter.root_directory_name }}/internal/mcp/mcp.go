@@ -46,9 +46,10 @@ func (m *MCP) StartServer(ctx context.Context) {
 	}, nil)
 
 	address := fmt.Sprintf(":%s", m.config.MCP.Port)
-	log.Infof(ctx, log.LogCatStartUp, "initiating MCP server on port:%s", m.config.MCP.Port)
+	log.Infof(ctx, log.LogCatStartUp, "starting MCP server on port %s", m.config.MCP.Port)
 
-	if err := http.ListenAndServe(address, handler); err != nil {
-		log.Error(ctx, log.LogCatUncategorized, fmt.Sprintf("MCP server failed: %v", err))
+	// http.ErrServerClosed is returned on a graceful shutdown and is expected.
+	if err := http.ListenAndServe(address, handler); err != nil && err != http.ErrServerClosed {
+		log.Errorf(ctx, log.LogCatUncategorized, "MCP server failed: %v", err)
 	}
 }

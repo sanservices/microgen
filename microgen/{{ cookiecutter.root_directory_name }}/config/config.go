@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	{% if cookiecutter.use_cache == 'y' %}"time"{% endif %}
@@ -58,5 +59,21 @@ func New(ctx context.Context) (*Settings, error) {
 		return nil, err
 	}
 
+	// Fail fast on an invalid configuration rather than at first use.
+	if err := settings.validate(); err != nil {
+		return nil, err
+	}
+
 	return settings, nil
+}
+
+// validate checks that the required settings are present and sane.
+func (s *Settings) validate() error {
+	if s.Service.Name == "" {
+		return fmt.Errorf("config: Service.name is required")
+	}
+	if s.Service.Port <= 0 {
+		return fmt.Errorf("config: Service.port must be a positive number, got %d", s.Service.Port)
+	}
+	return nil
 }
