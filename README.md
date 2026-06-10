@@ -60,3 +60,14 @@ The available generators are:
 - `nanogen` — Knative serverless function
 
 You will be asked about your basic info (name, project name, app name, etc.). This info will be used to customize your new project.
+
+## What the generated projects include
+
+The microservice generators (`microgen`, `microgrpcgen`, `micromcpgen`) scaffold a project with:
+
+- a layered, interface-driven domain package wired together with [uber/fx](https://github.com/uber-go/fx);
+- structured logging via `apilogger`, plus startup config validation (`settings.yml`, overridable with the `SETTINGS_PATH` env var);
+- basic [Datadog](https://docs.datadoghq.com/tracing/) APM tracing, configured through the standard `DD_*` environment variables;
+- a `Makefile` (run `make help`) and a multi-stage, non-root [distroless](https://github.com/GoogleContainerTools/distroless) `Dockerfile`.
+
+Optional features — database, cache, Kafka, and (for `micromcpgen`) MCP — are toggled by the prompts, and only the code for the selected features is generated.

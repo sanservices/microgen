@@ -17,4 +17,11 @@ curl http://myfunction.example.com/
 
 For more, see [the complete documentation]('https://github.com/knative/func/tree/main/docs')
 
+## Observability
+
+This function emits [Datadog](https://docs.datadoghq.com/tracing/) APM traces. The tracer is started when the function
+package loads and is configured entirely through the standard Datadog environment variables — `DD_ENV`, `DD_SERVICE`,
+`DD_VERSION`, `DD_AGENT_HOST` (default `localhost`) and `DD_TRACE_AGENT_PORT` (default `8126`). If no Datadog agent is
+reachable the tracer simply no-ops, so it is safe to leave enabled in local development.
+
 

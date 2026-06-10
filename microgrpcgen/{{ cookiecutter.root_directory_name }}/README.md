@@ -47,23 +47,21 @@ This is a service which is based on REST/gRPC for the Sanservices Golang microse
 
 ### Docker
 
-The easiest way to run this application is to build a docker image from it and run that image as a container. This would
-handle everything from compiling the executable to generating the swagger documentation without much need to know how
-any of that works.
-
-To do that run
+The easiest way to run this service is to build and run its container image. The multi-stage `Dockerfile` compiles the
+binary and packages it into a small, non-root [distroless](https://github.com/GoogleContainerTools/distroless) image
+together with its default `settings.yml`.
 
 ```
-docker build -t {{ cookiecutter.module_name }}-service:latest .
+make docker-build   # docker build -t {{ cookiecutter.root_directory_name }}:latest .
+make docker-run     # run the image and publish the service port(s)
 ```
 
-and then
+Or directly:
 
 ```
-docker run --name {{ cookiecutter.module_name }}-service -p 8080:8080 {{ cookiecutter.module_name }}-service:latest
+docker build -t {{ cookiecutter.root_directory_name }}:latest .
+docker run --rm -p 8080:8080 -p 50051:50051 {{ cookiecutter.root_directory_name }}:latest
 ```
-
-in the project's root directory.
 
 The downside to using this method of compiling and executing the app is that it makes debugging a little more
 complicated. If you're using VSCode for development, you can find information on how to get that right over here
@@ -108,6 +106,23 @@ local defaults. Make sure the protobuf toolchain (`protobuf` + `buf`) is install
 4. Try out the endpoints. The service exposes a health check at
    `GET localhost:8080/healthcheck` and gRPC on port `50051`. Use an API client such
    as [Postman](https://www.postman.com/downloads/) to exercise the rest of the API.
+
+## Observability
+
+The service emits [Datadog](https://docs.datadoghq.com/tracing/) APM traces out of the box. The tracer is started at
+boot with the service name and version from `settings.yml`, and incoming HTTP (REST/gateway) requests are traced
+automatically via Datadog's echo middleware. Configure it through the standard Datadog environment variables — no code
+changes required:
+
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `DD_ENV` | Deployment environment (e.g. `prod`, `staging`) | _(unset)_ |
+| `DD_SERVICE` | Service name override | `Service.name` from `settings.yml` |
+| `DD_VERSION` | Service version override | `Service.version` from `settings.yml` |
+| `DD_AGENT_HOST` | Datadog agent host | `localhost` |
+| `DD_TRACE_AGENT_PORT` | Datadog agent trace port | `8126` |
+
+If no Datadog agent is reachable the tracer simply no-ops, so it is safe to leave enabled in local development.
 
 ## Project architecture
 
