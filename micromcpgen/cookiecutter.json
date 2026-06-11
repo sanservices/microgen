@@ -2,8 +2,8 @@
   "root_directory_name": "my-service",
   "module_name": "github.com/sanservices/{{ cookiecutter.root_directory_name }}",
   "service_name": "service",
-  "use_database": ["n", "y"],
-  "use_cache": ["n", "y"],
-  "use_kafka": ["n", "y"],
-  "use_mcp": ["y", "n"]
+  "use_database": "n",
+  "use_cache": "n",
+  "use_kafka": "n",
+  "use_mcp": "y"
 }
