@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"os"
 
 	{% if cookiecutter.use_database == 'y' %}db "{{ cookiecutter.module_name }}/db"{% endif %}
 	{% if cookiecutter.use_database == 'y' %}"github.com/jmoiron/sqlx"{% endif %}
@@ -18,6 +20,7 @@ import (
 	service "{{ cookiecutter.module_name }}/internal/{{ cookiecutter.service_name }}/service"
 	"github.com/labstack/echo/v4"
 	log "github.com/sanservices/apilogger/v2"
+	ddtracer "gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 
 	"go.uber.org/fx"
 )
@@ -28,37 +31,40 @@ func main() {
 			// Initialize context
 			context.Background,
 			
-			// Intialize log
+			// Initialize log
 			log.New,
 			
-			// Intialize service configuration
+			// Initialize service configuration
 			config.New,
 			
 			{% if cookiecutter.use_database == 'y' %}
-			// Intialize database connection
+			// Initialize database connection
 			db.New,
 			{% endif %}
 
 			{% if cookiecutter.use_cache == 'y' %}
-			// Initialize redis connection
-			redis.New,
+			// Initialize redis connection (exposed as the {{ cookiecutter.service_name }}.Cache interface so fx can inject it)
+			fx.Annotate(
+				redis.New,
+				fx.As(new({{ cookiecutter.service_name }}.Cache)),
+			),
 			{% endif %}
 
-			// Intialize repository layer for databases transactions
+			// Initialize repository layer for databases transactions
 			repository.New,
 
-			// Intialize service layer for buisness logic
+			// Initialize service layer for business logic
 			service.New,
 
 			{% if cookiecutter.use_kafka == 'y' %}
 			//Initialize kafka's message broker
 			kafkalistener.New,
 			
-			// Initialize kafka implemetation
+			// Initialize kafka implementation
 			kafka.New,
 			{% endif %}
 
-			// Intialize api server
+			// Initialize api server
 			api.New,
 			
 			// Initialize handlers
@@ -83,27 +89,38 @@ func main() {
 			func(lc fx.Lifecycle, ctx context.Context, config *config.Settings, e *echo.Echo, {% if cookiecutter.use_database == 'y' %}db *sqlx.DB,{% endif %} {% if cookiecutter.use_kafka == 'y' %}k *kafka.Kafka{% endif %}) {
 				lc.Append(fx.Hook{
 					OnStart: func(ctx context.Context) error {
+						// Start the Datadog tracer with basic service info. The agent
+						// address and other options come from the standard DD_* env vars.
+						ddtracer.Start(
+							ddtracer.WithService(config.Service.Name),
+							ddtracer.WithServiceVersion(config.Service.Version),
+							ddtracer.WithEnv(os.Getenv("DD_ENV")),
+						)
+
 						go startRestAPI(ctx, config, e)
 						{%- if cookiecutter.use_kafka == 'y' %}
 						go k.StartListener(ctx)
 						{% endif %}
-						
+
 						return nil
 					},
 
 					OnStop: func(ctx context.Context) error {
 						{%- if cookiecutter.use_database == 'y' %}
-						log.Info(ctx, log.LogCatDatastoreClose, "Closing database...")
+						log.Info(ctx, log.LogCatDatastoreClose, "closing database...")
 						if err := db.Close(); err != nil {
-							log.Error(ctx, log.LogCatDatastoreClose, "Error closing database")
+							log.Errorf(ctx, log.LogCatDatastoreClose, "error closing database: %v", err)
 							return err
 						}
 						{% endif %}
-						log.Info(ctx, log.LogCatUncategorized, "Server is shutting down...")
+						log.Info(ctx, log.LogCatUncategorized, "server is shutting down...")
 						if err := e.Shutdown(ctx); err != nil {
-							log.Error(ctx, log.LogCatUncategorized, "Error shutting down server")
+							log.Errorf(ctx, log.LogCatUncategorized, "error shutting down server: %v", err)
 							return err
 						}
+
+						// Flush and stop the Datadog tracer.
+						ddtracer.Stop()
 
 						return nil
 					},
@@ -117,7 +134,10 @@ func main() {
 func startRestAPI(ctx context.Context, config *config.Settings, e *echo.Echo) {
 	address := fmt.Sprintf(":%d", config.Service.Port)
 
-	log.Infof(ctx, log.LogCatUncategorized, "See swagger at http://localhost:%d/v1/docs", config.Service.Port)
+	log.Infof(ctx, log.LogCatStartUp, "starting REST API on port %d (swagger at http://localhost:%d/v1/docs)", config.Service.Port, config.Service.Port)
 
-	e.Logger.Fatal(e.Start(address))
+	// http.ErrServerClosed is returned on a graceful shutdown and is expected.
+	if err := e.Start(address); err != nil && err != http.ErrServerClosed {
+		log.Errorf(ctx, log.LogCatUncategorized, "REST API server failed: %v", err)
+	}
 }

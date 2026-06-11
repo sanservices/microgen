@@ -1,0 +1,48 @@
+Service:
+  name: {{ cookiecutter.root_directory_name }}
+  version: "1.0.0"
+  port: 8080
+GRPC:
+  name: {{ cookiecutter.root_directory_name }}-grpc
+  version: "1.0.0"
+  port: "50051"
+{% if cookiecutter.use_mcp == 'y' %}
+MCP:
+  name: {{ cookiecutter.root_directory_name }}-mcp
+  version: "1.0.0"
+  port: "8081"
+{% endif %}
+{% if cookiecutter.use_database == 'y' %}
+Database:
+  engine: mysql
+  user: root
+  password: ""
+  host: localhost
+  port: 3306
+  name: {{ cookiecutter.service_name }}
+{% endif %}
+{% if cookiecutter.use_cache == 'y' %}
+Cache:
+  enabled: true
+  expiration_minutes: 5
+  purge_minutes: 10
+  Redis:
+    addr: localhost:6379
+    password: ""
+    db: 0
+{% endif %}
+{% if cookiecutter.use_kafka == 'y' %}
+Kafka:
+  enabled: false
+  version: "2.8.0"
+  consume_only: false
+  consumer_group_id: {{ cookiecutter.root_directory_name }}
+  schema_registration: ""
+  brokers: localhost:9092
+  TLS:
+    ca_cert_pem: ""
+    cert_pem: ""
+    key_pem: ""
+    skip_verify: true
+    timeout_secs: 10
+{% endif %}

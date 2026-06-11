@@ -1,0 +1,103 @@
+package config
+
+import (
+	"context"
+	"fmt"
+	"os"
+
+	{% if cookiecutter.use_cache == 'y' %}"time"{% endif %}
+
+	{% if cookiecutter.use_database == 'y' %}"github.com/sanservices/kit/database"{% elif cookiecutter.use_cache == 'y' %}"github.com/sanservices/kit/database"{% endif %}
+	{% if cookiecutter.use_kafka == 'y' %}"github.com/sanservices/kit/kafkalistener"{% endif %}
+	"gopkg.in/yaml.v2"
+)
+
+const (
+	// defaultSettingsPath is used when the SETTINGS_PATH env var is not set.
+	defaultSettingsPath = "settings.yml"
+)
+
+type Settings struct {
+	Service  Service                   `yaml:"Service"`
+	GRPC     GRPC                      `yaml:"GRPC"`
+	{% if cookiecutter.use_mcp == 'y' %}MCP      MCP                       `yaml:"MCP"`{% endif %}
+	{% if cookiecutter.use_database == 'y' %}Database  database.DatabaseConfig                  `yaml:"Database"`{% endif %}
+	{% if cookiecutter.use_cache == 'y' %}Cache    Cache                     `yaml:"Cache"`{% endif %}
+	{% if cookiecutter.use_kafka == 'y' %}Kafka    kafkalistener.KafkaConfig `yaml:"Kafka"`{% endif %}
+}
+
+type Service struct {
+	Name    string `yaml:"name"`
+	Version string `yaml:"version"`
+	Port    int    `yaml:"port"`
+	// TODO: Add debug flag
+}
+
+type GRPC struct {
+	Name    string `yaml:"name"`
+	Version string `yaml:"version"`
+	Port    string `yaml:"port"`
+}
+
+{% if cookiecutter.use_mcp == 'y' %}
+type MCP struct {
+	Name    string `yaml:"name"`
+	Version string `yaml:"version"`
+	Port    string `yaml:"port"`
+}
+{% endif %}
+
+{% if cookiecutter.use_cache == 'y' %}
+type Cache struct {
+	Enabled           bool                 `yaml:"enabled"`
+	ExpirationMinutes time.Duration        `yaml:"expiration_minutes"`
+	PurgeMinutes      time.Duration        `yaml:"purge_minutes"`
+	RedisConfig       database.RedisConfig `yaml:"Redis"`
+}
+{% endif %}
+
+func New(ctx context.Context) (*Settings, error) {
+	settings := &Settings{}
+
+	// Read settings file (path overridable via the SETTINGS_PATH env var)
+	path := os.Getenv("SETTINGS_PATH")
+	if path == "" {
+		path = defaultSettingsPath
+	}
+
+	cf, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	err = yaml.Unmarshal(cf, settings)
+	if err != nil {
+		return nil, err
+	}
+
+	// Fail fast on an invalid configuration rather than at first use.
+	if err := settings.validate(); err != nil {
+		return nil, err
+	}
+
+	return settings, nil
+}
+
+// validate checks that the required settings are present and sane.
+func (s *Settings) validate() error {
+	if s.Service.Name == "" {
+		return fmt.Errorf("config: Service.name is required")
+	}
+	if s.Service.Port <= 0 {
+		return fmt.Errorf("config: Service.port must be a positive number, got %d", s.Service.Port)
+	}
+	if s.GRPC.Port == "" {
+		return fmt.Errorf("config: GRPC.port is required")
+	}
+	{% if cookiecutter.use_mcp == 'y' %}
+	if s.MCP.Port == "" {
+		return fmt.Errorf("config: MCP.port is required")
+	}
+	{% endif %}
+	return nil
+}

@@ -2,12 +2,12 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"function/internal/config"
+	{% if cookiecutter.use_database == 'y' %}"errors"
 	"function/internal/repository/mysql"
 	"function/internal/repository/oracle"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/jmoiron/sqlx"{% endif %}
 )
 
 // Repository is the contract interface for the repository layer,

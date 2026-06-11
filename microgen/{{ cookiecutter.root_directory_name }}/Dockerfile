@@ -1,43 +1,36 @@
-FROM golang:1.20 AS build
+# syntax=docker/dockerfile:1
 
-# Set the working directory inside the container
-WORKDIR /{{ cookiecutter.root_directory_name }}
+# ---------- build stage ----------
+FROM golang:1.23 AS build
 
-# Install go-swagger
-RUN dir=$(mktemp -d) && \
-    git clone https://github.com/go-swagger/go-swagger "$dir" && \
-    cd "$dir" && \
-    git checkout v0.27.0 && \
-    go install \
-    -ldflags "-X github.com/go-swagger/go-swagger/cmd/swagger/commands.Version=$(git describe --tags) -X github.com/go-swagger/go-swagger/cmd/swagger/commands.Commit=$(git rev-parse HEAD)" \
-    ./cmd/swagger
+WORKDIR /app
 
-# Copy the Go modules and download dependencies
+# Download dependencies first so this layer is cached unless go.mod/go.sum change.
 COPY go.mod go.sum ./
-RUN go mod download
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download
 
-# Copy the rest of the application source code
+# Build the application.
 COPY . .
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    go build -trimpath -ldflags="-s -w" -o /app/bin/{{ cookiecutter.root_directory_name }} .
 
-# Generate swagger file
-RUN swagger generate spec --compact -o internal/api/handlers/handler/swagger/swagger.yml
+# ---------- final stage ----------
+# Distroless provides CA certificates and a non-root user, and contains no shell
+# or package manager. cc-debian12 includes the C runtime needed by CGO backends
+# such as sqlite.
+FROM gcr.io/distroless/cc-debian12:nonroot AS final
 
-# Build the Go application
-RUN go build -o {{ cookiecutter.root_directory_name }}
+WORKDIR /
 
-#Final
-FROM debian:bookworm-slim AS Final
-
-RUN apt update && apt install openssl -y && apt install ca-certificates
-
-# Get the certificate from the server
-RUN openssl s_client -connect www.sandals.com:443 < /dev/null 2> /dev/null | \ 
-    openssl x509 -inform pem -text | sed -n -e '/BEGIN/,$p' > /etc/ssl/certs/cert.pem
-
-RUN update-ca-certificates
-
-COPY --from=build /{{ cookiecutter.root_directory_name }}/{{ cookiecutter.root_directory_name }} .
+# Application binary and default configuration. Override the config at runtime
+# with the SETTINGS_PATH env var or by mounting a different settings.yml.
+COPY --from=build /app/bin/{{ cookiecutter.root_directory_name }} /{{ cookiecutter.root_directory_name }}
+COPY --from=build /app/settings.yml /settings.yml
 
 EXPOSE 8080
 
-CMD ["./{{ cookiecutter.root_directory_name }}"]
+USER nonroot:nonroot
+
+ENTRYPOINT ["/{{ cookiecutter.root_directory_name }}"]

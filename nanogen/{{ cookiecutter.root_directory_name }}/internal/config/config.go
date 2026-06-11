@@ -3,9 +3,9 @@ package config
 import (
 	"context"
 	"os"
-	{% if cookiecutter.use_cache != 'n' %}"time"{% endif %}
+	{% if cookiecutter.use_cache == 'y' %}"time"{% endif %}
 
-	"github.com/sanservices/kit/database"
+	{% if cookiecutter.use_database == 'y' or cookiecutter.use_cache == 'y' %}"github.com/sanservices/kit/database"{% endif %}
 	"gopkg.in/yaml.v2"
 )
 
@@ -38,13 +38,16 @@ type CacheConfig struct {
 {% endif %}
 
 {% if cookiecutter.use_sftp == 'y' %}
-type SftpConfig struct { 
+type SftpConfig struct {
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
-	Host string `yaml:"host"`
-	Port int `yaml:"port"`
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
 }
-type SmtpConfig struct { 
+{% endif %}
+
+{% if cookiecutter.use_smtp == 'y' %}
+type SmtpConfig struct {
 	Host     string `yaml:"host"`
 	Port     int    `yaml:"port"`
 	Username string `yaml:"username"`

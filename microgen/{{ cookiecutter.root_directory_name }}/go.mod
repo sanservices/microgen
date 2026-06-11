@@ -1,6 +1,8 @@
 module {{ cookiecutter.module_name }}
 
-go 1.20
+go 1.23.0
+
+toolchain go1.23.4
 
 require (
 	github.com/go-redis/redis/v8 v8.11.5
@@ -9,6 +11,7 @@ require (
 	github.com/sanservices/apicore v1.1.1
 	github.com/sanservices/kit v1.3.8
 	go.uber.org/fx v1.19.3
+	gopkg.in/DataDog/dd-trace-go.v1 v1.66.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -34,4 +37,3 @@ require (
 	gopkg.in/go-playground/validator.v9 v9.31.0 // indirect
 )
 
-replace github.com/swaggo/files/v2 => github.com/sanservices/swaggo-files/v2 v2.0.2

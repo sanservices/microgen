@@ -2,17 +2,19 @@ package config
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	{% if cookiecutter.use_cache == 'y' %}"time"{% endif %}
 
-	{% if cookiecutter.use_database != 'n' %}"github.com/sanservices/kit/database"{% elif cookiecutter.use_cache != 'n' %}"github.com/sanservices/kit/database"{% endif %}
+	{% if cookiecutter.use_database == 'y' %}"github.com/sanservices/kit/database"{% elif cookiecutter.use_cache == 'y' %}"github.com/sanservices/kit/database"{% endif %}
 	{% if cookiecutter.use_kafka == 'y' %}"github.com/sanservices/kit/kafkalistener"{% endif %}
 	"gopkg.in/yaml.v2"
 )
 
 const (
-	fPath = "settings.yml"
+	// defaultSettingsPath is used when the SETTINGS_PATH env var is not set.
+	defaultSettingsPath = "settings.yml"
 )
 
 type Settings struct {
@@ -41,8 +43,13 @@ type Cache struct {
 func New(ctx context.Context) (*Settings, error) {
 	settings := &Settings{}
 
-	//Read settings file
-	cf, err := os.ReadFile(fPath)
+	// Read settings file (path overridable via the SETTINGS_PATH env var)
+	path := os.Getenv("SETTINGS_PATH")
+	if path == "" {
+		path = defaultSettingsPath
+	}
+
+	cf, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
@@ -52,5 +59,21 @@ func New(ctx context.Context) (*Settings, error) {
 		return nil, err
 	}
 
+	// Fail fast on an invalid configuration rather than at first use.
+	if err := settings.validate(); err != nil {
+		return nil, err
+	}
+
 	return settings, nil
+}
+
+// validate checks that the required settings are present and sane.
+func (s *Settings) validate() error {
+	if s.Service.Name == "" {
+		return fmt.Errorf("config: Service.name is required")
+	}
+	if s.Service.Port <= 0 {
+		return fmt.Errorf("config: Service.port must be a positive number, got %d", s.Service.Port)
+	}
+	return nil
 }

@@ -12,7 +12,7 @@ import (
 //	type Service interface {
 //		Entity(ctx context.Context, e *entity.Entity) error
 //  	RegisterEntity(ctx context.Context, e *entity.Entity) error
-// 		UpateEntity(ctx context.Context, e *entity.Entity) error
+// 		UpdateEntity(ctx context.Context, e *entity.Entity) error
 //	}
 type Service interface {
 	GetUser(ctx context.Context, id uint) (*entity.User, error)
@@ -26,7 +26,7 @@ type Service interface {
 //	type Repository interface {
 //		Find(ctx context.Context, e *entity.Entity) error
 //  	RegisterEntity(ctx context.Context, e *entity.Entity) error
-// 		UpateEntity(ctx context.Context, e *entity.Entity) error
+// 		UpdateEntity(ctx context.Context, e *entity.Entity) error
 //	}
 type Repository interface {
 	{% if cookiecutter.use_database == 'y' %}

@@ -1,8 +1,8 @@
 module {{ cookiecutter.module_name }}
 
-go 1.22.7
+go 1.23.0
 
-toolchain go1.22.9
+toolchain go1.23.4
 
 require (
 	github.com/go-redis/redis/v8 v8.11.5
@@ -15,6 +15,7 @@ require (
 	github.com/sanservices/apilogger/v2 v2.0.2
 	github.com/sanservices/kit v1.3.8
 	go.uber.org/fx v1.19.3
+	gopkg.in/DataDog/dd-trace-go.v1 v1.66.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20241104194629-dd2ea8efbc28
 	google.golang.org/grpc v1.68.0
 	google.golang.org/protobuf v1.35.1
@@ -28,7 +29,6 @@ require (
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
-	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
@@ -45,4 +45,3 @@ require (
 	gopkg.in/go-playground/validator.v9 v9.31.0 // indirect
 )
 
-replace github.com/swaggo/files/v2 => github.com/sanservices/swaggo-files/v2 v2.0.2

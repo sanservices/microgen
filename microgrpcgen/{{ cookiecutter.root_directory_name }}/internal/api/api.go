@@ -13,7 +13,7 @@ func New() *echo.Echo {
 	e := echo.New()
 
 	e.HideBanner = true        // Don't log the banner on startup
-	e.HidePort = true          // Hide log about the port when server i starting up
+	e.HidePort = true          // Hide log about the port when server is starting up
 	e.Logger.SetLevel(log.OFF) // disable echo#Logger
 
 	return e
