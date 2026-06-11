@@ -42,7 +42,17 @@ By default the three surfaces listen on separate ports (configurable in `setting
 | gRPC | `50051` (`GRPC.port`) | Reflection enabled |
 {% if cookiecutter.use_mcp == 'y' %}| MCP | `8081` (`MCP.port`) | Streamable HTTP transport at `http://localhost:8081` |{% endif %}
 
-{% if cookiecutter.use_mcp == 'y' %}You can point any MCP client (e.g. Claude, an MCP Inspector, or the Go SDK client) at the MCP port to discover and call the registered tools.{% endif %}
+{% if cookiecutter.use_mcp == 'y' %}You can point any MCP client (e.g. Claude, an MCP Inspector, or the Go SDK client) at the MCP port to discover and call the registered tools.
+
+A runnable example client lives in [`internal/mcp/client`](internal/mcp/client/main.go). With the service running, in another terminal:
+
+```
+make mcp-client                              # or: go run ./internal/mcp/client
+go run ./internal/mcp/client -user 42        # call get_user with a specific id
+go run ./internal/mcp/client -endpoint http://localhost:8081
+```
+
+It connects over the Streamable HTTP transport, lists the available tools, and calls the sample `get_user` tool.{% endif %}
 
 
 # ***Requirements***
@@ -173,7 +183,7 @@ package. The file path can be overridden with the `SETTINGS_PATH` environment va
 {% if cookiecutter.use_mcp == 'y' %}
 `/internal/mcp`
 
-*️ Exposes the service over the Model Context Protocol. `mcp.go` builds the MCP server and serves it over Streamable HTTP; `tools.go` registers each service operation as an MCP tool. Tool handlers delegate to the same `service` layer used by the gRPC/REST handlers, so behaviour stays consistent. Add new tools in `registerTools`.
+*️ Exposes the service over the Model Context Protocol. `mcp.go` builds the MCP server and serves it over Streamable HTTP; `tools.go` registers each service operation as an MCP tool. Tool handlers delegate to the same `service` layer used by the gRPC/REST handlers, so behaviour stays consistent. Add new tools in `registerTools`. `client/` holds a runnable example MCP client (`go run ./internal/mcp/client`).
 {% endif %}
 
 `/internal/{{ cookiecutter.service_name }}`

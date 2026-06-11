@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 BINARY := {{ cookiecutter.root_directory_name }}
 
-.PHONY: help run build test tidy fmt lint generate docker-build docker-run
+.PHONY: help run build test tidy fmt lint generate {% if cookiecutter.use_mcp == 'y' %}mcp-client {% endif %}docker-build docker-run
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -28,6 +28,10 @@ generate: ## Generate protobuf / gRPC / gateway / OpenAPI code
 	buf dep update
 	buf generate
 
+{% if cookiecutter.use_mcp == 'y' %}
+mcp-client: ## Run the example MCP client (service must be running)
+	go run ./internal/mcp/client
+{% endif %}
 docker-build: ## Build the docker image
 	docker build -t $(BINARY):latest .
 
