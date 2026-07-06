@@ -31,7 +31,7 @@ func main() {
 		Version: "1.0.0",
 	}, nil)
 
-	session, err := client.Connect(ctx, mcp.NewStreamableClientTransport(*endpoint, nil))
+	session, err := client.Connect(ctx, &mcp.StreamableClientTransport{Endpoint: *endpoint}, nil)
 	if err != nil {
 		log.Fatalf("connect to %s: %v", *endpoint, err)
 	}

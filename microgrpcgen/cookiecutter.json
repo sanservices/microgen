@@ -4,5 +4,10 @@
   "service_name": "service",
   "use_database": "n",
   "use_cache": "n",
-  "use_kafka": "n"
+  "use_kafka": "n",
+  "__prompts__": {
+    "use_database": "Use database? (y/n)",
+    "use_cache": "Use cache? (y/n)",
+    "use_kafka": "Use kafka? (y/n)"
+  }
 }

@@ -5,5 +5,11 @@
   "use_database": "n",
   "use_cache": "n",
   "use_kafka": "n",
-  "use_mcp": "y"
+  "use_mcp": "y",
+  "__prompts__": {
+    "use_database": "Use database? (y/n)",
+    "use_cache": "Use cache? (y/n)",
+    "use_kafka": "Use kafka? (y/n)",
+    "use_mcp": "Use MCP? (y/n)"
+  }
 }
