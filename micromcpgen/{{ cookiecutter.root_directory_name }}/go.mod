@@ -11,7 +11,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/labstack/gommon v0.4.0
-	github.com/modelcontextprotocol/go-sdk v0.2.0
+	github.com/modelcontextprotocol/go-sdk v1.3.0
 	github.com/sanservices/apicore v1.1.1
 	github.com/sanservices/apilogger/v2 v2.0.2
 	github.com/sanservices/kit v1.3.8
